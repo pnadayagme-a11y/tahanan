@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FAF7F2"><meta name="description" content="Find your next tahanan in Iligan City.">
+<title>Tahanan · Find your place in Iligan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- Supabase library (connects the website to your database) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--terra:#E2725B;--terra-dark:#c85d48;--teal:#1F5F5B;--cream:#FAF7F2;--ink:#253331;--muted:#75817d;--line:#e9e5de;--white:#fff;--shadow:0 12px 32px #2533310c}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,76px);background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.brand{display:flex;align-items:center;gap:10px;font:800 24px 'Plus Jakarta Sans';color:var(--teal);letter-spacing:-1px;text-decoration:none}.brandmark{height:39px;width:39px;border-radius:13px;background:var(--terra);display:grid;place-items:center;color:white}.brandmark svg{width:24px}.nav{display:flex;gap:24px;align-items:center}.nav a{color:#53615d;text-decoration:none;font-size:14px;font-weight:600}.nav-actions{display:flex;gap:10px}.btn{border:0;border-radius:13px;padding:12px 17px;font-weight:700;transition:.2s}.btn-primary{background:var(--terra);color:white}.btn-primary:hover{background:var(--terra-dark);transform:translateY(-1px)}.btn-outline{background:white;border:1px solid var(--line);color:var(--ink)}.btn-teal{background:var(--teal);color:white}.hero{padding:64px clamp(18px,5vw,76px) 38px;background:radial-gradient(ellipse at 90% 0%,#f4d9cc 0,transparent 40%),linear-gradient(125deg,#fffaf5,#f7eee5);overflow:hidden}.hero-inner{max-width:1280px;margin:auto;display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center}.eyebrow{display:inline-flex;gap:8px;align-items:center;background:#fff;border:1px solid #f0ded5;color:var(--teal);padding:8px 12px;border-radius:99px;font-size:12px;font-weight:800;letter-spacing:.2px}.dot{width:8px;height:8px;border-radius:50%;background:#5e9a70}.hero h1{font-size:clamp(38px,5vw,65px);line-height:1.06;letter-spacing:-2.8px;margin:19px 0}.hero h1 span{color:var(--terra)}.hero p{color:#697671;font-size:16px;line-height:1.8;max-width:510px;margin:0 0 25px}.searchbox{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:0;background:#fff;border:1px solid #eee5dd;border-radius:18px;padding:8px;box-shadow:var(--shadow);max-width:850px;position:relative;z-index:2}.searchfield{padding:8px 13px;border-right:1px solid var(--line);min-width:0}.searchfield label{display:block;font-size:11px;font-weight:800;margin-bottom:7px}.searchfield input,.searchfield select{width:100%;border:0;outline:0;background:transparent;color:#596560;font-size:13px;min-width:0}.searchbox .btn{align-self:stretch;padding:0 21px}.hero-art{height:340px;position:relative;border-radius:28px;overflow:hidden;background:#d8e3d8;box-shadow:0 25px 60px #2e51431b}.hero-art img{width:100%;height:100%;object-fit:cover;display:block}.floating-note{position:absolute;bottom:18px;left:18px;background:#fff;padding:13px 16px;border-radius:15px;box-shadow:var(--shadow);font-size:12px}.floating-note strong{display:block;font-size:14px;margin-bottom:4px}.floating-note span{color:var(--muted)}.section{padding:44px clamp(18px,5vw,76px);max-width:1440px;margin:auto}.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:22px}.section-head h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.8px}.section-head p{color:var(--muted);font-size:13px;margin:8px 0 0}.textlink{color:var(--teal);font-size:13px;font-weight:800;text-decoration:none}.chips{display:flex;gap:10px;flex-wrap:wrap}.chip{background:white;border:1px solid var(--line);border-radius:99px;padding:11px 16px;font-size:13px;font-weight:700;color:#52605c}.chip:hover,.chip.active{border-color:var(--terra);color:var(--terra);background:#fff8f5}.listing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}.listing-card{background:white;border:1px solid #eeeae3;border-radius:19px;overflow:hidden;box-shadow:0 4px 16px #25333106;transition:.2s}.listing-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.listing-photo{height:190px;position:relative;background:#e8e3dc}.listing-photo img{width:100%;height:100%;object-fit:cover}.heart{position:absolute;right:12px;top:12px;width:36px;height:36px;border:0;border-radius:50%;background:#ffffffed;font-size:20px;color:#53615d}.heart.saved{color:var(--terra)}.verified{position:absolute;left:12px;top:12px;background:#fff;padding:6px 9px;border-radius:99px;color:var(--teal);font-size:10px;font-weight:800}.listing-body{padding:15px}.listing-meta{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px;margin-bottom:9px}.listing-body h3{font-size:15px;line-height:1.4;margin-bottom:6px}.location{font-size:12px;color:var(--muted);margin-bottom:13px}.price{font-size:18px;font-weight:800;color:var(--ink)}.price small{font-size:11px;font-weight:500;color:var(--muted)}.amenities{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.amenities span{font-size:10px;color:#63706b;background:#f5f4f0;padding:5px 7px;border-radius:6px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:30px}.stat{padding:21px;background:white;border:1px solid var(--line);border-radius:17px}.stat strong{display:block;font:800 26px 'Plus Jakarta Sans';color:var(--teal)}.stat span{font-size:12px;color:var(--muted)}.banner{margin:0 clamp(18px,5vw,76px) 45px;background:var(--teal);color:white;border-radius:22px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;gap:20px}.banner p{color:#d6e6e1;margin:8px 0 0;font-size:13px}.banner .btn{background:white;color:var(--teal);white-space:nowrap}.footer{padding:28px clamp(18px,5vw,76px);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;color:var(--muted);font-size:12px;background:#fff}.footer strong{color:var(--teal)}.page{display:none;min-height:70vh}.page.active{display:block}.login-wrap{max-width:520px;margin:42px auto;padding:0 18px}.panel{background:white;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--shadow)}.panel h2{font-size:27px;margin-bottom:8px}.sub{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:22px}.tabs{display:flex;background:#f4f1ec;padding:5px;border-radius:13px;gap:4px;margin-bottom:22px}.tab{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 5px;font-weight:700;font-size:13px;color:#697570}.tab.active{background:white;color:var(--teal);box-shadow:0 2px 7px #0000000a}.formfield{margin-bottom:15px}.formfield label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}.formfield input,.formfield select{width:100%;padding:13px;border:1px solid #dedfd8;border-radius:11px;outline:none;background:white}.formfield input:focus,.formfield select:focus{border-color:var(--teal);box-shadow:0 0 0 3px #1f5f5b13}.formrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{width:100%}.dashboard{padding:36px clamp(18px,5vw,76px);max-width:1440px;margin:auto}.dashboard-top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}.dashboard-top p{color:var(--muted);font-size:13px}.dash-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}.dash-card{background:white;border:1px solid var(--line);border-radius:17px;padding:20px}.dash-card span{font-size:12px;color:var(--muted)}.dash-card strong{display:block;font:800 26px 'Plus Jakarta Sans';margin:10px 0 5px}.dash-card small{color:var(--teal);font-size:11px}.table-wrap{overflow:auto;background:white;border:1px solid var(--line);border-radius:16px}.table-wrap table{width:100%;border-collapse:collapse;min-width:650px}.table-wrap th,.table-wrap td{text-align:left;padding:14px 16px;border-bottom:1px solid #f0eee9;font-size:12px;vertical-align:middle}.table-wrap th{color:var(--muted);background:#fcfbf8}.status{display:inline-block;padding:5px 8px;border-radius:99px;background:#e5f2e9;color:#34714b;font-size:10px;font-weight:800}.status.pending{background:#fff0d8;color:#96621a}.status.review{background:#fbe5df;color:#b24f3d}.status.hidden{background:#eceae6;color:#6b6f6c}.empty-note{color:var(--muted);font-size:13px;padding:20px}.helper{position:fixed;bottom:20px;right:20px;z-index:10}.helper-btn{width:58px;height:58px;border:0;border-radius:50%;background:var(--terra);color:white;font-size:24px;box-shadow:0 8px 25px #b65b493f}.chatbox{display:none;position:absolute;right:0;bottom:70px;width:min(350px,calc(100vw - 36px));background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px #182b282b;overflow:hidden}.chatbox.open{display:block}.chathead{padding:15px;background:var(--teal);color:white;display:flex;justify-content:space-between;align-items:center}.chathead small{display:block;color:#d8e8e2;margin-top:4px}.chatmessages{height:230px;overflow:auto;padding:14px;background:#fcfaf7}.bubble{max-width:90%;background:white;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.55;margin-bottom:9px}.bubble.me{margin-left:auto;background:#fff0eb;border-color:#f5d9d1}.chatinput{display:flex;padding:10px;gap:7px}.chatinput input{min-width:0;flex:1;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px}.chatinput button{border:0;background:var(--terra);color:white;border-radius:10px;padding:0 13px}.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#233b36;color:white;padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;z-index:40;display:none;max-width:calc(100vw - 36px);text-align:center}.toast.show{display:block}
+/* ---------- new styles for the live (Supabase) version ---------- */
+.owner-cta{margin:18px 0 0!important;font-size:14px!important}.owner-cta a{color:var(--terra);font-weight:800;text-decoration:none}
+.modal{position:fixed;inset:0;background:#1d2b2899;z-index:30;display:none;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto}.modal.open{display:flex}
+.modal-card{background:#fff;border-radius:22px;width:min(760px,100%);box-shadow:0 30px 80px #0003;overflow:hidden;position:relative}
+.modal-close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:#ffffffee;font-size:22px;z-index:2;box-shadow:0 2px 8px #0002}
+.modal-body{padding:24px}
+.gallery-main{height:clamp(220px,45vw,380px);background:#e8e3dc}.gallery-main img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs{display:flex;gap:8px;padding:12px 24px 0;overflow-x:auto}.thumbs img{width:66px;height:50px;flex:none;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.65;border:2px solid transparent}.thumbs img.on{opacity:1;border-color:var(--terra)}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}.detail-grid div{background:#f8f6f2;border-radius:12px;padding:11px 12px;font-size:11px;color:var(--muted)}.detail-grid strong{display:block;color:var(--ink);font-size:14px;margin-top:3px}
+.desc{white-space:pre-line;line-height:1.7;font-size:14px;color:#44514d;margin:0 0 16px}.detail-h{font-size:15px;margin:20px 0 8px}
+.mapframe{width:100%;height:230px;border:0;border-radius:14px;background:#eef0e8}
+.contact-box{margin-top:20px;padding:18px;border:1px solid var(--line);border-radius:16px;background:#fcfbf8}
+textarea{width:100%;padding:13px;border:1px solid #dedfd8;border-radius:11px;outline:none;resize:vertical;min-height:90px;background:#fff}textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px #1f5f5b13}
+.amenity-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.amenity-picks label{display:flex!important;gap:8px;align-items:center;font-size:13px!important;font-weight:500!important;border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;margin:0!important}.amenity-picks input{width:auto!important;padding:0!important}
+.photo-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px}.photo-previews div{position:relative;height:74px;border-radius:10px;overflow:hidden;background:#eee}.photo-previews img{width:100%;height:100%;object-fit:cover}.photo-previews button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:#000a;color:#fff;font-size:13px;line-height:1;padding:0}.photo-previews .cover{position:absolute;left:4px;bottom:4px;background:#fff;color:var(--teal);font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px}
+.notice{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:15px;display:none}.notice.show{display:block}.notice.ok{background:#e5f2e9;color:#2f6a44}.notice.err{background:#fbe5df;color:#a5402f}
+.thumb-cell{width:54px;height:42px;border-radius:8px;object-fit:cover;display:block}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.actions .btn{font-size:11px;padding:7px 10px;border-radius:9px}.dashboard-top .actions .btn{font-size:13px;padding:11px 15px;border-radius:12px}
+.btn-danger{background:#fff;border:1px solid #f1cfc6;color:#b24f3d}.btn:disabled{opacity:.6;cursor:wait}
+.dash-section{margin-top:30px}.dash-section h2{font-size:20px;margin-bottom:14px}
+.hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+.role-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.role-pick label{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex!important;gap:8px;align-items:center;font-size:13px;font-weight:700;cursor:pointer;margin:0!important}.role-pick input{width:auto!important}
+.loading{color:var(--muted);font-size:13px;padding:30px 0;text-align:center}
+.promo-strip{display:none;background:linear-gradient(90deg,#E2725B,#e8936b);color:#fff;padding:12px clamp(18px,5vw,76px);font-size:14px;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center}.promo-strip.show{display:flex}.promo-strip strong{font-weight:800}.promo-strip .btn{background:#fff;color:var(--terra);padding:8px 14px;font-size:13px;border-radius:10px}.slots-pill{background:#ffffff2e;border:1px solid #ffffff55;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800}
+.listing-card.featured{border:2px solid #f0b43c;box-shadow:0 8px 24px #f0b43c22}
+.featured-tag{position:absolute;left:12px;bottom:12px;background:#f0b43c;color:#3b2a05;padding:6px 10px;border-radius:99px;font-size:10px;font-weight:800;box-shadow:0 2px 8px #0002}
+.status.featured{background:#fdf0cf;color:#8a5d00}
+.promo-note{background:#fff7e6;border:1px solid #f6dfa6;color:#7a5300;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:16px}
+/* ---------- admin panel + Pro + reports ---------- */
+.admin-tabs{overflow-x:auto;flex-wrap:nowrap;margin-bottom:8px}.admin-tabs .tab{flex:none;padding:10px 14px;white-space:nowrap}
+.tab .count{display:inline-block;background:var(--terra);color:#fff;border-radius:99px;font-size:10px;padding:2px 7px;margin-left:4px}
+.admin-search{width:100%;max-width:360px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;margin:0 0 12px;background:#fff;outline:none}.admin-search:focus{border-color:var(--teal)}
+.mini-select{padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12px}
+.pro-card{margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(120deg,#1F5F5B,#2b7a74);color:#fff;border-radius:20px;padding:22px 24px}.pro-card h2{font-size:20px;margin-bottom:8px}.pro-card ul{margin:0;padding-left:18px;font-size:13px;line-height:1.8;color:#dcebe7}.pro-card .hint{color:#cfe3df}.pro-action{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.pro-card .btn-primary{background:#fff;color:var(--teal)}.pro-card .btn-outline{background:transparent;color:#fff;border-color:#ffffff66}
+.pay-box{background:#f3f8f7;border:1px solid #d5e7e3;border-radius:14px;padding:16px;margin-bottom:16px;text-align:center}.pay-box span{display:block;font-size:12px;color:var(--muted)}.pay-box strong{display:block;font:800 24px 'Plus Jakarta Sans';color:var(--teal);margin:4px 0}
+.admin-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff7e6;border:1px solid #f6dfa6;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;font-weight:700}.admin-bar .btn{font-size:11px;padding:7px 10px;border-radius:9px}
+label.check{display:flex!important;gap:8px;align-items:center;font-size:13px;margin-bottom:14px;cursor:pointer}label.check input{width:auto}
+#miniModal .modal-card{width:min(540px,100%)}.mini-h{font-size:22px;margin-bottom:6px;padding-right:40px}
+.report-link{margin:14px 0 0;text-align:right}.report-link a{color:var(--muted)!important;font-size:12px!important}
+.status.declined{background:#fbe5df;color:#b24f3d}.status.pro{background:#e3f0ee;color:#1F5F5B}
+@media(max-width:1000px){.hero-inner{grid-template-columns:1fr}.hero-art{height:270px}.listing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-cards{grid-template-columns:repeat(2,1fr)}.nav a{display:none}.searchbox{grid-template-columns:1fr 1fr}.searchfield:nth-child(2){border-right:0}.searchfield:nth-child(3){border-top:1px solid var(--line)}.searchbox .btn{margin-top:5px;min-height:46px}}
+@media(max-width:560px){.topbar{height:66px}.brand{font-size:21px}.nav,.nav-actions{gap:8px}.nav .btn{padding:10px 12px;font-size:12px}.hero{padding-top:38px}.hero h1{letter-spacing:-1.8px}.hero-art{height:220px}.searchbox{grid-template-columns:1fr}.searchfield{border-right:0;border-bottom:1px solid var(--line)}.searchfield:nth-child(3){border-top:0}.searchbox .btn{min-height:45px}.listing-grid{grid-template-columns:1fr}.listing-photo{height:225px}.section{padding-top:32px;padding-bottom:32px}.stats{grid-template-columns:1fr}.banner{align-items:flex-start;flex-direction:column;padding:24px}.footer{flex-direction:column}.formrow{grid-template-columns:1fr}.panel{padding:22px}.dash-cards{grid-template-columns:1fr 1fr}.dash-card{padding:15px}.dash-card strong{font-size:22px}.dashboard-top{align-items:flex-start;flex-direction:column}.modal{padding:0}.modal-card{border-radius:0;min-height:100vh}.modal-body{padding:18px}.role-pick{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="#home" onclick="showPage('home')"><span class="brandmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/></svg></span> tahanan</a><nav class="nav"><a href="#home" onclick="showPage('home')">Explore stays</a><a href="#safety" onclick="showPage('safety')">Safety tips</a><span class="nav-actions" id="navActions"></span></nav></header>
+<main>
+
+<!-- ===================== HOME ===================== -->
+<section id="home" class="page active">
+<div class="promo-strip" id="promoStrip"><span>🎉 <strong id="promoTitle">Grand Launch Promo!</strong> <span id="promoText">Post your room FREE + get a ⭐ Featured spot for 30 days.</span></span><span class="slots-pill" id="promoSlots">First 50 owners only</span><button class="btn" id="promoBtn" onclick="ownerCta()">Claim my slot →</button></div>
+<div class="hero"><div class="hero-inner"><div><span class="eyebrow"><span class="dot"></span> YOUR NEXT CHAPTER STARTS HERE</span><h1 id="heroTitle">Find a place<br>to call <span>home.</span></h1><p id="heroText">Hanap ka ng tahanan malapit sa school mo? Discover affordable rooms, bedspaces, and apartments around Iligan City.</p>
+<div class="searchbox"><div class="searchfield"><label>LOCATION OR LANDMARK</label><input id="searchLocation" placeholder="e.g. Near MSU-IIT" onkeydown="if(event.key==='Enter')searchListings()"></div><div class="searchfield"><label>MONTHLY BUDGET</label><select id="searchBudget"><option value="any">Any budget</option><option value="2500">Up to ₱2,500</option><option value="3000">Up to ₱3,000</option><option value="5000">Up to ₱5,000</option><option value="8000">Up to ₱8,000</option><option value="15000">Up to ₱15,000</option></select></div><div class="searchfield"><label>ROOM TYPE</label><select id="searchType"><option value="any">Any type</option><option>Bedspace</option><option>Solo Room</option><option>Shared Room</option><option>Studio</option><option>Apartment</option><option>Whole House</option></select></div><button class="btn btn-primary" onclick="searchListings()">⌕ Search</button></div>
+<div class="chips" style="margin-top:16px"><button class="chip" onclick="quickSearch('MSU-IIT')">Near MSU-IIT</button><button class="chip" onclick="quickSearch('Robinsons')">Near Robinsons</button><button class="chip" onclick="quickSearch('Gaisano')">Near Gaisano</button><button class="chip" onclick="quickSearch('St. Michael')">Near St. Michael's</button></div>
+<p class="owner-cta">🏠 Own a boarding house or a room for rent? <a href="#" onclick="ownerCta();return false">List your place on Tahanan →</a></p></div>
+<div class="hero-art"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85" alt="Warm, welcoming apartment interior"><div class="floating-note"><strong>Room to grow. Space to belong.</strong><span>Find your tahanan in Iligan City ✨</span></div></div></div></div>
+<section class="section"><div class="section-head"><div><h2>Popular places to stay</h2><p>Great locations for school, work, and everyday life.</p></div><a class="textlink" href="#listings" onclick="clearSearch();return false">View all stays →</a></div><div class="chips"><button class="chip" onclick="quickSearch('Tibanga')">📍 Tibanga</button><button class="chip" onclick="quickSearch('Pala-o')">📍 Pala-o</button><button class="chip" onclick="quickSearch('Poblacion')">📍 Poblacion</button><button class="chip" onclick="quickSearch('Tubod')">📍 Tubod</button><button class="chip" onclick="quickSearch('Mahayahay')">📍 Mahayahay</button><button class="chip" onclick="quickSearch('Hinaplanon')">📍 Hinaplanon</button></div></section>
+<section class="section" id="allListings" style="padding-top:0"><div class="section-head"><div><h2>Places you might love</h2><p id="resultsCount">Loading stays around Iligan City...</p></div><select id="sortSelect" onchange="renderListings()" style="padding:10px;border:1px solid var(--line);border-radius:10px;background:white"><option value="recommended">Recommended</option><option value="newest">Newest</option><option value="low">Lowest price</option><option value="high">Highest price</option></select></div><div class="listing-grid" id="listingGrid"></div><div id="noResults" class="empty-note" style="display:none"></div><div class="stats"><div class="stat"><strong id="statLow">₱0</strong><span>Lowest monthly rate on Tahanan</span></div><div class="stat"><strong id="statAreas">0 barangays</strong><span>Explore neighborhoods around Iligan</span></div><div class="stat"><strong id="statCount">0 stays</strong><span>Made for students and young workers</span></div></div></section>
+<div class="banner"><div><h2 id="bannerTitle">Ready to find your tahanan?</h2><p id="bannerText">Create an account to save favorites and contact property owners.</p></div><button class="btn" id="bannerBtn" onclick="openAuth('signup')">Join Tahanan →</button></div>
+</section>
+
+<!-- ===================== LOG IN / SIGN UP ===================== -->
+<section id="login" class="page"><div class="login-wrap"><div class="panel">
+<h2 id="authTitle">Welcome back 👋</h2><p class="sub" id="authSub">Log in to save places, message owners, or manage your listings.</p>
+<div class="tabs"><button type="button" class="tab active" data-mode="login" onclick="setAuthMode('login')">Log in</button><button type="button" class="tab" data-mode="signup" onclick="setAuthMode('signup')">Create account</button></div>
+<div class="notice" id="authNotice"></div>
+<form id="loginForm" onsubmit="doLogin(event)">
+ <div class="formfield"><label>Email address</label><input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required></div>
+ <div class="formfield"><label>Password</label><input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password" required></div>
+ <div style="display:flex;justify-content:flex-end;margin:5px 0 18px;font-size:12px"><a href="#" class="textlink" onclick="forgotPassword();return false">Forgot password?</a></div>
+ <button type="submit" class="btn btn-primary full">Log in</button>
+</form>
+<form id="signupForm" style="display:none" onsubmit="doSignup(event)">
+ <div class="formfield"><label>I am a...</label><div class="role-pick"><label><input type="radio" name="role" value="renter" checked> 🎒 Renter / Student</label><label><input type="radio" name="role" value="owner"> 🏠 Property owner</label></div></div>
+ <div class="formfield"><label>Full name</label><input id="suName" placeholder="Juan Dela Cruz" autocomplete="name" required></div>
+ <div class="formfield"><label>Mobile number</label><input id="suPhone" type="tel" placeholder="09XX XXX XXXX" autocomplete="tel" required></div>
+ <div class="formfield"><label>Email address</label><input id="suEmail" type="email" placeholder="you@example.com" autocomplete="email" required></div>
+ <div class="formfield"><label>Password</label><input id="suPassword" type="password" placeholder="At least 6 characters" minlength="6" autocomplete="new-password" required></div>
+ <button type="submit" class="btn btn-primary full">Create account</button>
+</form>
+</div><p style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin:15px">Please post honest, accurate information. Never send money to someone you have not verified.</p></div></section>
+
+<!-- ===================== NEW PASSWORD (from reset email) ===================== -->
+<section id="reset" class="page"><div class="login-wrap"><div class="panel"><h2>Set a new password 🔑</h2><p class="sub">Type your new password below.</p><form onsubmit="doReset(event)"><div class="formfield"><label>New password</label><input id="newPassword" type="password" minlength="6" autocomplete="new-password" required></div><button type="submit" class="btn btn-primary full">Save new password</button></form></div></div></section>
+
+<!-- ===================== DASHBOARD ===================== -->
+<section id="dashboard" class="page"><div class="dashboard"><div class="dashboard-top"><div><h1 id="dashTitle">Your dashboard</h1><p id="dashSubtitle"></p></div><div class="actions" id="dashActions"></div></div><div id="dashBody"></div></div></section>
+
+<!-- ===================== SAFETY ===================== -->
+<section id="safety" class="page"><div class="section" style="max-width:900px"><span class="eyebrow">TAHANAN SAFETY GUIDE</span><h1 style="font-size:clamp(32px,5vw,48px);margin:18px 0">A safer search for your next home.</h1><p class="sub">A few reminders for renters, students, and families looking for a place in Iligan City.</p><div class="listing-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))"><article class="panel"><h3>👀 Visit before paying</h3><p class="sub">Whenever possible, visit the property in person and check the room, shared spaces, and surroundings.</p></article><article class="panel"><h3>🪪 Verify the owner</h3><p class="sub">Ask for identification and confirm that the person is authorized to rent the property. Look for the ✓ Verified badge.</p></article><article class="panel"><h3>🧾 Keep records</h3><p class="sub">Request written rental terms and receipts. Understand deposits, advance rent, utilities, and refund rules.</p></article><article class="panel"><h3>🚩 Watch for red flags</h3><p class="sub">Be cautious of pressure to pay immediately, prices that seem too good to be true, or refusal to show the property.</p></article></div><button class="btn btn-primary" style="margin-top:22px" onclick="showPage('home')">Explore places</button></div></section>
+</main>
+
+<footer class="footer"><div><strong>⌂ tahanan</strong><br>Find your place to belong in Iligan City.</div><div>Made for local renters · Iligan City, Philippines<br>© 2026 Tahanan</div></footer>
+
+<!-- ===================== LISTING DETAILS POPUP ===================== -->
+<div class="modal" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')"><div class="modal-card"><button class="modal-close" onclick="closeModal('detailModal')" aria-label="Close">×</button><div id="detailContent"></div></div></div>
+
+<!-- ===================== ADD / EDIT LISTING POPUP (owners) ===================== -->
+<div class="modal" id="formModal" onclick="if(event.target===this)closeModal('formModal')"><div class="modal-card"><button class="modal-close" onclick="closeModal('formModal')" aria-label="Close">×</button><div class="modal-body">
+<h2 id="formTitle" style="font-size:24px;margin-bottom:6px">Post a new listing</h2><p class="sub">Clear photos and complete details help renters choose your place faster.</p><div class="promo-note" id="formPromoNote" style="display:none"></div>
+<form id="listingForm" onsubmit="saveListing(event)">
+ <div class="formfield"><label>Listing title</label><input id="lf_title" maxlength="120" placeholder="e.g. Casa Maria Boarding House" required></div>
+ <div class="formrow"><div class="formfield"><label>Room type</label><select id="lf_type" required></select></div><div class="formfield"><label>Monthly rate (₱)</label><input id="lf_price" type="number" min="1" step="1" placeholder="e.g. 2500" required></div></div>
+ <div class="formrow"><div class="formfield"><label>Available slots</label><input id="lf_slots" type="number" min="0" step="1" value="1" required></div><div class="formfield"><label>Who can stay</label><select id="lf_gender"><option>Mixed</option><option>Female only</option><option>Male only</option></select></div></div>
+ <div class="formrow"><div class="formfield"><label>Best for</label><select id="lf_tenant"><option>Students & workers</option><option>Students</option><option>Workers</option><option>Families</option></select></div><div class="formfield"><label>Listing visibility</label><select id="lf_status"><option value="active">Visible to renters</option><option value="hidden">Hidden (full or paused)</option></select></div></div>
+ <div class="formrow"><div class="formfield"><label>Barangay</label><input id="lf_barangay" list="barangayList" placeholder="e.g. Tibanga" required></div><div class="formfield"><label>Nearby landmark</label><input id="lf_landmark" placeholder="e.g. Near MSU-IIT"></div></div>
+ <div class="formfield"><label>Full address</label><input id="lf_address" placeholder="Street, purok, building name" required><div class="hint">Used for the Google Map on your listing. Be specific so renters can find you.</div></div>
+ <div class="formfield"><label>Contact number</label><input id="lf_contact" type="tel" placeholder="09XX XXX XXXX" required><div class="hint">Only logged-in renters see this.</div></div>
+ <div class="formfield"><label>Description</label><textarea id="lf_desc" maxlength="2000" placeholder="Tell renters about the room, the building, what's included in the rate, deposit and advance..."></textarea></div>
+ <div class="formfield"><label>House rules</label><textarea id="lf_rules" maxlength="2000" placeholder="e.g. Curfew 10PM, no visitors in rooms, no pets, quiet hours after 9PM"></textarea></div>
+ <div class="formfield"><label>Amenities</label><div class="amenity-picks" id="amenityPicks"></div></div>
+ <div class="formfield"><label>Photos (up to 8)</label><input id="lf_photos" type="file" accept="image/*" multiple onchange="addPhotos(this)"><div class="hint">The first photo is your cover photo. Big phone photos are resized automatically.</div><div class="photo-previews" id="photoPreviews"></div></div>
+ <button type="submit" class="btn btn-primary full" id="saveBtn" style="margin-top:8px">Save listing</button>
+</form></div></div></div>
+<datalist id="barangayList"></datalist>
+
+<!-- ===================== SMALL POPUP (Pro, reports, admin tools) ===================== -->
+<div class="modal" id="miniModal" onclick="if(event.target===this)closeModal('miniModal')"><div class="modal-card"><button class="modal-close" onclick="closeModal('miniModal')" aria-label="Close">×</button><div class="modal-body" id="miniContent"></div></div></div>
+
+<!-- ===================== HELPER CHAT ===================== -->
+<div class="helper"><div class="chatbox" id="chatbox"><div class="chathead"><div><strong>✨ Tahanan Helper</strong><small>Ask about places to stay</small></div><button onclick="toggleChat()" style="border:0;background:transparent;color:white;font-size:20px">×</button></div><div class="chatmessages" id="chatmessages"><div class="bubble">Hi! Kumusta? 👋 Tell me your budget, preferred area, or room type and I'll find matching places.</div></div><form class="chatinput" onsubmit="sendChat(event)"><input id="chatInput" placeholder="e.g. female bedspace under ₱3000" required><button>Send</button></form></div><button class="helper-btn" onclick="toggleChat()" aria-label="Open Tahanan Helper">✦</button></div><div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   1. SUPABASE CONNECTION
+   The publishable key is safe to keep here. NEVER paste your secret
+   key (sb_secret_...) into this file.
+   ===================================================================== */
+const SUPABASE_URL='https://fxdfthhtpvfxvovqxphu.supabase.co';
+const SUPABASE_KEY='sb_publishable_mhSnTieU9aF4ZENCfl23lQ_zhT8MUFs';
+const BUCKET='listing-photos';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+/* =====================================================================
+   2. SETTINGS (edit these lists anytime)
+   ===================================================================== */
+const TYPES=['Bedspace','Solo Room','Shared Room','Studio','Apartment','Whole House'];
+const AMENITIES=['WiFi','Aircon','Own CR','Water included','Electricity included','Kitchen access','Laundry','Parking','CCTV','Study area','No curfew','Pet friendly'];
+const BARANGAYS=['Abuno','Acmac','Bagong Silang','Bonbonon','Bunawan','Buru-un','Dalipuga','Del Carmen','Digkilaan','Ditucalan','Dulag','Hinaplanon','Hindang','Kabacsanan','Kalilangan','Kiwalan','Lanipao','Luinab','Mahayahay','Mainit','Mandulog','Maria Cristina','Pala-o','Panoroganan','Poblacion','Puga-an','Rogongon','San Miguel','San Roque','Santa Elena','Santa Filomena','Santiago','Santo Rosario','Saray','Suarez','Tambacan','Tibanga','Tipanoy','Tomas L. Cabili','Tominobo Proper','Tominobo Upper','Tubod','Ubaldo Laya','Upper Hinaplanon','Villa Verde'];
+const FALLBACK_IMG='https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=700&q=80';
+const MAX_PHOTOS=8;
+
+/* =====================================================================
+   3. APP STATE
+   ===================================================================== */
+let places=[],user=null,profile=null,saved=new Set();
+let activeSearch={location:'',budget:'any',type:'any'};
+let ownerListings=[],adminListings=[];
+let editingId=null,keptPhotos=[],removedPhotos=[],newFiles=[];
+let promoSlotsLeft=0,myPromoEnd=null;
+let adminTab='overview',AD=null,myProReq=null;
+
+/* ---------- marketing settings (edited by admin in the Marketing tab) ---------- */
+const DEFAULT_SETTINGS={promo_enabled:true,promo_title:'Grand Launch Promo!',promo_text:'Post your room FREE + get a ⭐ Featured spot for 30 days.',promo_button:'Claim my slot →',promo_slots:50,promo_days:30,hero_line1:'Find a place',hero_line2:'to call',hero_highlight:'home.',hero_text:'Hanap ka ng tahanan malapit sa school mo? Discover affordable rooms, bedspaces, and apartments around Iligan City.',pro_price:199,pro_days:30,pro_benefits:'⭐ Featured on ALL your listings\n🔝 Shown above free listings in search\n📊 Full performance report\n✓ Priority verification',gcash_number:'',gcash_name:''};
+let S={...DEFAULT_SETTINGS};
+function isOn(v){return v===true||v==='true'}
+async function loadSettings(){
+  const {data,error}=await sb.from('site_settings').select('value').eq('key','marketing').maybeSingle();
+  if(error)console.warn('Settings:',error.message);
+  S={...DEFAULT_SETTINGS,...(data?.value||{})};
+  applySettings();
+}
+function applySettings(){
+  document.getElementById('heroTitle').innerHTML=`${esc(S.hero_line1)}<br>${esc(S.hero_line2)} <span>${esc(S.hero_highlight)}</span>`;
+  document.getElementById('heroText').textContent=S.hero_text;
+  document.getElementById('promoTitle').textContent=S.promo_title;
+  document.getElementById('promoText').textContent=S.promo_text;
+  document.getElementById('promoBtn').textContent=S.promo_button;
+}
+function isFeatured(p){return !!p.featured_until&&new Date(p.featured_until)>new Date()}
+
+/* ---------- analytics tracking (impressions, views, contacts) ---------- */
+let SID;try{SID=sessionStorage.getItem('tahanan_sid')||Math.random().toString(36).slice(2,14);sessionStorage.setItem('tahanan_sid',SID)}catch(e){SID=Math.random().toString(36).slice(2,14)}
+function logEvent(ids,event){if(profile?.role==='admin'||!ids||!ids.length)return;sb.rpc('log_events',{p_listing_ids:ids,p_event:event,p_session:SID}).then(r=>{if(r.error)console.warn('Tracking error:',r.error.message)})}
+let pendingImpr=new Set(),imprTimer=null;
+const imprObserver=('IntersectionObserver' in window)?new IntersectionObserver(entries=>{
+  entries.forEach(en=>{if(en.isIntersecting){pendingImpr.add(en.target.dataset.id);imprObserver.unobserve(en.target)}});
+  clearTimeout(imprTimer);imprTimer=setTimeout(()=>{logEvent([...pendingImpr],'impression');pendingImpr.clear()},1500);
+},{threshold:0.5}):null;
+function observeCards(){if(imprObserver)document.querySelectorAll('.listing-card[data-id]').forEach(c=>imprObserver.observe(c))}
+
+/* ---------- small helpers ---------- */
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){return '₱'+Number(n||0).toLocaleString('en-PH')}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}
+function photoOf(p){return (p.photos&&p.photos[0])||FALLBACK_IMG}
+function siteUrl(){return location.origin+location.pathname}
+function val(id){return document.getElementById(id).value.trim()}
+function telHref(n){return 'tel:'+String(n||'').replace(/[^\d+]/g,'')}
+function findListing(id){return places.concat(ownerListings,adminListings).find(p=>p.id===id)}
+function firstName(){return (profile?.full_name||'').trim().split(' ')[0]||'there'}
+function busy(btn,on,text){if(!btn)return;if(on){btn.dataset.label=btn.dataset.label||btn.textContent;btn.disabled=true;btn.textContent=text||'Please wait...'}else{btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;delete btn.dataset.label}}
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),3200)}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));let el=document.getElementById(id);if(el)el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeModal(id){document.getElementById(id).classList.remove('open');if(!document.querySelector('.modal.open'))document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>closeModal(m.id))});
+
+/* =====================================================================
+   4. LISTINGS: load, search, show
+   ===================================================================== */
+async function loadListings(){
+  const {data,error}=await sb.from('listings').select('*').eq('status','active').eq('approval','approved').order('created_at',{ascending:false}).limit(500);
+  if(error){console.error(error);toast('Could not load listings. Please check your internet connection.');places=[]}
+  else places=(data||[]).map(p=>({...p,_r:Math.random()}));// _r rotates Featured listings with the same priority
+  renderListings();updateStats();
+}
+function cardHTML(p){
+  const isSaved=saved.has(p.id);
+  const feat=isFeatured(p);
+  return `<article class="listing-card ${feat?'featured':''}" data-id="${p.id}"><div class="listing-photo"><img loading="lazy" src="${esc(photoOf(p))}" alt="${esc(p.title)}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"><span class="verified">${p.verified?'✓ Verified listing':'New listing'}</span><button class="heart ${isSaved?'saved':''}" aria-label="Save listing" onclick="toggleSave('${p.id}')">${isSaved?'♥':'♡'}</button>${feat?'<span class="featured-tag">⭐ Featured</span>':''}</div><div class="listing-body"><div class="listing-meta"><span>${esc(p.type)} · ${esc(p.gender)}</span><span>${p.slots>0?`${p.slots} slot${p.slots==1?'':'s'} left`:'Full'}</span></div><h3>${esc(p.title)}</h3><div class="location">📍 ${esc(p.barangay)}${p.landmark?' · '+esc(p.landmark):''}</div><div class="price">${money(p.price)} <small>/ month</small></div><div class="amenities">${(p.amenities||[]).slice(0,3).map(a=>`<span>${esc(a)}</span>`).join('')}</div><button class="btn btn-outline full" style="margin-top:14px" onclick="viewListing('${p.id}')">View details</button></div></article>`;
+}
+function renderListings(){
+  const q=(activeSearch.location||'').toLowerCase(),budget=activeSearch.budget,type=activeSearch.type;
+  let arr=places.filter(p=>(!q||[p.barangay,p.landmark,p.title,p.type,p.address].join(' ').toLowerCase().includes(q))&&(budget==='any'||p.price<=Number(budget))&&(type==='any'||p.type===type));
+  const sort=document.getElementById('sortSelect').value;
+  if(sort==='low')arr.sort((a,b)=>a.price-b.price);
+  else if(sort==='high')arr.sort((a,b)=>b.price-a.price);
+  else if(sort==='newest')arr.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  else arr.sort((a,b)=>{
+    // Paid ranking (like Amazon PPC): Featured first, then higher ad priority, then rotate fairly
+    const fa=isFeatured(a),fb=isFeatured(b);
+    if(fa!==fb)return fb-fa;
+    if(fa&&fb)return ((b.ad_priority||0)-(a.ad_priority||0))||(a._r-b._r);
+    return (b.verified-a.verified)||(new Date(b.created_at)-new Date(a.created_at));
+  });
+  document.getElementById('resultsCount').textContent=`Showing ${arr.length} place${arr.length===1?'':'s'} around Iligan City.`;
+  const nr=document.getElementById('noResults');
+  nr.style.display=arr.length?'none':'block';
+  nr.textContent=places.length?'No stays match those filters. Try another area or budget.':'No stays posted yet. Property owners, create an account and be the first to list your place! 🏠';
+  document.getElementById('listingGrid').innerHTML=arr.map(cardHTML).join('');
+  observeCards();
+}
+function updateStats(){
+  document.getElementById('statLow').textContent=places.length?money(Math.min(...places.map(p=>p.price)))+'+':'₱0';
+  const areas=new Set(places.map(p=>p.barangay)).size;
+  document.getElementById('statAreas').textContent=`${areas} barangay${areas===1?'':'s'}`;
+  document.getElementById('statCount').textContent=`${places.length} stay${places.length===1?'':'s'}`;
+}
+function searchListings(){activeSearch={location:val('searchLocation'),budget:document.getElementById('searchBudget').value,type:document.getElementById('searchType').value};renderListings();document.getElementById('allListings').scrollIntoView({behavior:'smooth'})}
+function quickSearch(q){document.getElementById('searchLocation').value=q;searchListings()}
+function clearSearch(){document.getElementById('searchLocation').value='';document.getElementById('searchBudget').value='any';document.getElementById('searchType').value='any';searchListings()}
+
+/* ---------- launch promo (founding owners) ---------- */
+async function loadPromo(){
+  const {data,error}=await sb.rpc('promo_slots_left');
+  promoSlotsLeft=error?0:(data||0);
+  myPromoEnd=null;
+  if(user&&['owner','admin'].includes(profile?.role)){
+    const r=await sb.from('promo_claims').select('claimed_at').eq('owner_id',user.id).maybeSingle();
+    if(r.data){const end=new Date(r.data.claimed_at);end.setDate(end.getDate()+Number(S.promo_days||30));myPromoEnd=end}
+  }
+  const strip=document.getElementById('promoStrip');
+  const show=isOn(S.promo_enabled)&&promoSlotsLeft>0&&!myPromoEnd&&profile?.role!=='renter'&&profile?.role!=='admin';
+  strip.classList.toggle('show',show);
+  document.getElementById('promoSlots').textContent=`Only ${promoSlotsLeft} slot${promoSlotsLeft===1?'':'s'} left!`;
+}
+function promoNoteText(){
+  if(myPromoEnd&&myPromoEnd>new Date())return `⭐ You're a Founding Owner! Every listing you post until <strong>${fmtDate(myPromoEnd)}</strong> is Featured for free.`;
+  if(!myPromoEnd&&promoSlotsLeft>0&&isOn(S.promo_enabled))return `🎉 Launch promo: post your first listing now and get a FREE ⭐ Featured spot for ${Number(S.promo_days||30)} days once it's approved. Only <strong>${promoSlotsLeft}</strong> slot${promoSlotsLeft===1?'':'s'} left!`;
+  return '';
+}
+
+/* ---------- listing details popup ---------- */
+function viewListing(id){
+  const p=findListing(id);if(!p)return;
+  logEvent([id],'view');
+  const photos=(p.photos&&p.photos.length)?p.photos:[FALLBACK_IMG];
+  const fullAddr=`${p.address}, ${p.barangay}, Iligan City`;
+  const mapEmbed='https://maps.google.com/maps?q='+encodeURIComponent(fullAddr)+'&z=15&output=embed';
+  const mapLink='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(fullAddr);
+  let contact;
+  if(!user){
+    contact=`<p class="sub" style="margin:0 0 12px">Log in or create a free account to see the owner's contact number and send a message.</p><button class="btn btn-primary" onclick="closeModal('detailModal');openAuth('login')">Log in to contact owner</button>`;
+  }else if(user.id===p.owner_id){
+    contact=`<p class="sub" style="margin:0">This is your listing. Messages from renters show up in your dashboard.</p>`;
+  }else{
+    contact=`${p.contact_number?`<p style="margin:0 0 14px;font-size:14px">📞 Call or text: <a class="textlink" style="font-size:14px" onclick="logEvent(['${p.id}'],'contact')" href="${esc(telHref(p.contact_number))}">${esc(p.contact_number)}</a></p>`:''}<form onsubmit="sendInquiry(event,'${p.id}')"><div class="formfield"><label>Your contact number</label><input id="inqContact" type="tel" value="${esc(profile?.phone||'')}" placeholder="09XX XXX XXXX" required></div><div class="formfield"><label>Message to owner</label><textarea id="inqMessage" maxlength="1000" required>Hi po! Is this place still available? I'm interested and would like to visit.</textarea></div><button type="submit" class="btn btn-primary full">Send message</button></form>`;
+  }
+  const isSaved=saved.has(p.id);
+  document.getElementById('detailContent').innerHTML=`
+   <div class="gallery-main"><img id="galleryMain" src="${esc(photos[0])}" alt="${esc(p.title)}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"></div>
+   ${photos.length>1?`<div class="thumbs">${photos.map((u,i)=>`<img src="${esc(u)}" class="${i===0?'on':''}" onclick="swapPhoto(this)" alt="Photo ${i+1}">`).join('')}</div>`:''}
+   <div class="modal-body">
+    ${profile?.role==='admin'?adminBarHTML(p):''}
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><span class="status ${p.verified?'':'pending'}">${p.verified?'✓ Verified listing':'New listing'}</span>${isFeatured(p)?' <span class="status featured">⭐ Featured</span>':''}<h2 style="font-size:24px;margin:10px 0 6px">${esc(p.title)}</h2><div class="location" style="margin:0">📍 ${esc(p.barangay)}${p.landmark?' · '+esc(p.landmark):''}</div></div><button class="btn btn-outline" onclick="toggleSave('${p.id}').then(()=>viewListing('${p.id}'))">${isSaved?'♥ Saved':'♡ Save'}</button></div>
+    <div class="detail-grid">
+     <div>Monthly rate<strong>${money(p.price)}</strong></div>
+     <div>Room type<strong>${esc(p.type)}</strong></div>
+     <div>Who can stay<strong>${esc(p.gender)}</strong></div>
+     <div>Best for<strong>${esc(p.tenant_type||'Students & workers')}</strong></div>
+     <div>Available slots<strong>${p.slots>0?p.slots:'Full'}</strong></div>
+    </div>
+    ${p.description?`<h3 class="detail-h">About this place</h3><p class="desc">${esc(p.description)}</p>`:''}
+    ${(p.amenities||[]).length?`<h3 class="detail-h">Amenities</h3><div class="amenities" style="margin:0">${p.amenities.map(a=>`<span style="font-size:12px">${esc(a)}</span>`).join('')}</div>`:''}
+    ${p.house_rules?`<h3 class="detail-h">House rules</h3><p class="desc">${esc(p.house_rules)}</p>`:''}
+    <h3 class="detail-h">Location</h3><p class="desc" style="margin-bottom:10px">${esc(fullAddr)} · <a class="textlink" href="${esc(mapLink)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></p>
+    <iframe class="mapframe" loading="lazy" src="${esc(mapEmbed)}" title="Map of ${esc(p.title)}"></iframe>
+    <div class="contact-box"><h3 class="detail-h" style="margin-top:0">Contact the owner</h3>${contact}</div>
+    ${user?.id!==p.owner_id&&profile?.role!=='admin'?`<p class="report-link"><a href="#" class="textlink" onclick="openReport('${p.id}');return false">🚩 Report this listing</a></p>`:''}
+   </div>`;
+  openModal('detailModal');
+}
+function swapPhoto(el){document.getElementById('galleryMain').src=el.src;document.querySelectorAll('.thumbs img').forEach(i=>i.classList.toggle('on',i===el))}
+
+async function sendInquiry(e,id){
+  e.preventDefault();const btn=e.submitter||e.target.querySelector('button');busy(btn,true,'Sending...');
+  const {error}=await sb.from('inquiries').insert({listing_id:id,renter_name:profile?.full_name||user.email,renter_contact:val('inqContact'),message:val('inqMessage')});
+  busy(btn,false);
+  if(error)return toast('Could not send: '+error.message);
+  logEvent([id],'contact');
+  closeModal('detailModal');toast('Message sent! The owner will contact you soon. 📩');
+}
+
+/* ---------- saved / favorites ---------- */
+async function loadSaved(){
+  saved=new Set();if(!user)return;
+  const {data}=await sb.from('saved_listings').select('listing_id');
+  (data||[]).forEach(r=>saved.add(r.listing_id));
+}
+async function toggleSave(id){
+  if(!user){toast('Log in to save places you like. ♡');closeModal('detailModal');openAuth('login');return}
+  if(saved.has(id)){
+    const {error}=await sb.from('saved_listings').delete().eq('listing_id',id);
+    if(error)return toast(error.message);
+    saved.delete(id);toast('Removed from your saved places.');
+  }else{
+    const {error}=await sb.from('saved_listings').insert({listing_id:id});
+    if(error)return toast(error.message);
+    saved.add(id);toast('Saved to your favorites! ♥');
+  }
+  renderListings();
+}
+
+/* =====================================================================
+   5. ACCOUNTS: sign up, log in, log out, reset password
+   ===================================================================== */
+async function initAuth(){
+  const {data:{session}}=await sb.auth.getSession();
+  await setUser(session?.user||null);
+  sb.auth.onAuthStateChange((event,session)=>{
+    // setTimeout avoids a known Supabase freeze when calling the database inside this listener
+    setTimeout(async()=>{
+      if((session?.user?.id||null)!==(user?.id||null))await setUser(session?.user||null);
+      if(event==='PASSWORD_RECOVERY')showPage('reset');
+    },0);
+  });
+}
+async function setUser(u){
+  user=u;profile=null;
+  if(u){
+    const {data}=await sb.from('profiles').select('*').eq('id',u.id).maybeSingle();
+    profile=data||{id:u.id,full_name:u.user_metadata?.full_name||'',phone:u.user_metadata?.phone||'',role:'renter'};
+  }
+  await loadSaved();updateNav();renderListings();loadPromo();
+}
+function updateNav(){
+  const nav=document.getElementById('navActions');
+  const role=profile?.role;
+  nav.innerHTML=user
+    ?`<button class="btn btn-outline" onclick="goDashboard()">${role==='owner'?'My listings':role==='admin'?'Admin panel':'Dashboard'}</button><button class="btn btn-primary" onclick="logout()">Log out</button>`
+    :`<button class="btn btn-outline" onclick="openAuth('login')">Log in</button><button class="btn btn-primary" onclick="openAuth('signup')">Get started</button>`;
+  const t=document.getElementById('bannerTitle'),x=document.getElementById('bannerText'),b=document.getElementById('bannerBtn');
+  if(!user){t.textContent='Ready to find your tahanan?';x.textContent='Create an account to save favorites and contact property owners.';b.textContent='Join Tahanan →';b.onclick=()=>openAuth('signup')}
+  else if(role==='owner'||role==='admin'){t.textContent='Got a place to rent out?';x.textContent='Post a room, bedspace, or house with photos in a few minutes.';b.textContent='Post a listing →';b.onclick=()=>openListingForm()}
+  else{t.textContent='Stay safe while house hunting';x.textContent='Visit first, verify the owner, and keep receipts.';b.textContent='Read safety tips →';b.onclick=()=>showPage('safety')}
+}
+function openAuth(mode,role){showPage('login');setAuthMode(mode);if(role){const r=document.querySelector(`input[name=role][value=${role}]`);if(r)r.checked=true}}
+function setAuthMode(mode){
+  document.querySelectorAll('#login .tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
+  document.getElementById('loginForm').style.display=mode==='login'?'block':'none';
+  document.getElementById('signupForm').style.display=mode==='signup'?'block':'none';
+  document.getElementById('authTitle').textContent=mode==='login'?'Welcome back 👋':'Join Tahanan ✨';
+  document.getElementById('authSub').textContent=mode==='login'?'Log in to save places, message owners, or manage your listings.':'Create a free account. Choose "Property owner" if you have rooms or houses to rent out.';
+  hideNotice();
+}
+function notice(msg,type){const n=document.getElementById('authNotice');n.textContent=msg;n.className='notice show '+(type||'err')}
+function hideNotice(){document.getElementById('authNotice').className='notice'}
+
+async function doLogin(e){
+  e.preventDefault();const btn=e.submitter;busy(btn,true,'Logging in...');hideNotice();
+  const {data,error}=await sb.auth.signInWithPassword({email:val('loginEmail'),password:document.getElementById('loginPassword').value});
+  busy(btn,false);
+  if(error){
+    if(/confirm/i.test(error.message))return notice('Please confirm your email first. Check your inbox (and spam folder) for the link from Supabase.');
+    if(/invalid/i.test(error.message))return notice('Wrong email or password. Please try again.');
+    return notice(error.message);
+  }
+  await setUser(data.user);e.target.reset();toast(`Welcome back, ${firstName()}! 👋`);goDashboard();
+}
+async function doSignup(e){
+  e.preventDefault();const btn=e.submitter;hideNotice();
+  const role=document.querySelector('input[name=role]:checked').value,email=val('suEmail'),password=document.getElementById('suPassword').value;
+  if(password.length<6)return notice('Password must be at least 6 characters.');
+  busy(btn,true,'Creating account...');
+  const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:val('suName'),phone:val('suPhone'),role},emailRedirectTo:siteUrl()}});
+  busy(btn,false);
+  if(error){
+    if(/rate limit/i.test(error.message))return notice('Too many sign-ups right now. Please try again in a few minutes. 🙏');
+    return notice(error.message);
+  }
+  if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0)return notice('This email already has an account. Try logging in instead.');
+  e.target.reset();
+  if(data.session){await setUser(data.user);toast('Welcome to Tahanan! 🎉');goDashboard();if(role==='owner')openListingForm()}
+  else notice(`Almost there! We sent a confirmation link to ${email}. Click it, then log in here.`,'ok');
+}
+async function forgotPassword(){
+  const email=val('loginEmail');
+  if(!email)return notice('Type your email address above first, then tap "Forgot password?" again.');
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:siteUrl()});
+  if(error)return notice(error.message);
+  notice('Password reset link sent. Please check your email.','ok');
+}
+async function doReset(e){
+  e.preventDefault();const btn=e.submitter;busy(btn,true,'Saving...');
+  const {error}=await sb.auth.updateUser({password:document.getElementById('newPassword').value});
+  busy(btn,false);
+  if(error)return toast(error.message);
+  e.target.reset();toast('Password updated! 🔑');goDashboard();
+}
+async function logout(){await sb.auth.signOut();await setUser(null);showPage('home');toast('You are logged out. Ingat! 👋')}
+
+function ownerCta(){
+  if(!user)return openAuth('signup','owner');
+  if(['owner','admin'].includes(profile?.role))return openListingForm();
+  becomeOwner();
+}
+async function becomeOwner(){
+  if(!confirm('Switch your account to a Property Owner account so you can post rooms and houses for rent?'))return;
+  const {error}=await sb.from('profiles').update({role:'owner'}).eq('id',user.id);
+  if(error)return toast(error.message);
+  profile.role='owner';updateNav();toast('You are now an owner! Post your first listing. 🏠');
+  await goDashboard();openListingForm();
+}
+
+/* =====================================================================
+   6. DASHBOARDS (renter / owner / admin)
+   ===================================================================== */
+function cardsHTML(cards){return `<div class="dash-cards">${cards.map(c=>`<div class="dash-card"><span>${c[0]}</span><strong>${c[1]}</strong><small>${c[2]}</small></div>`).join('')}</div>`}
+function tableHTML(heads,rows,empty){if(!rows.length)return `<div class="table-wrap"><p class="empty-note">${empty}</p></div>`;return `<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('')}</tbody></table></div>`}
+function approvalBadge(p){
+  const a=p.approval||'approved';
+  if(a==='pending')return '<span class="status pending">⏳ Pending review</span><br>';
+  if(a==='declined')return `<span class="status declined">✕ Declined</span>${p.decline_reason?`<div class="hint" style="max-width:220px">Reason: ${esc(p.decline_reason)}<br>Edit the listing to send it for review again.</div>`:''}`;
+  return '';
+}
+function statusBadge(p){return approvalBadge(p)+`<span class="status ${p.status==='hidden'?'hidden':''}">${p.status==='hidden'?'Hidden':'Visible'}</span> <span class="status ${p.verified?'':'pending'}">${p.verified?'✓ Verified':'Not verified'}</span>${isFeatured(p)?`<br><span class="status featured" style="margin-top:5px">⭐ Featured until ${fmtDate(p.featured_until)}</span>`:''}`}
+
+async function goDashboard(){
+  if(!user)return openAuth('login');
+  showPage('dashboard');
+  const role=profile?.role||'renter';
+  document.getElementById('dashTitle').textContent=role==='admin'?'Admin panel 🛠️':role==='owner'?`Hi ${firstName()}! 🏠`:`Welcome home, ${firstName()}!`;
+  document.getElementById('dashBody').innerHTML='<p class="loading">Loading your dashboard...</p>';
+  if(role==='owner')await renderOwnerDash();
+  else if(role==='admin')await renderAdminDash();
+  else await renderRenterDash();
+}
+
+async function renderRenterDash(){
+  document.getElementById('dashSubtitle').textContent='Your saved places and messages to owners.';
+  document.getElementById('dashActions').innerHTML=`<button class="btn btn-outline" onclick="showPage('home')">← Browse stays</button><button class="btn btn-outline" onclick="becomeOwner()">🏠 I'm a property owner</button>`;
+  const {data:inq}=await sb.from('inquiries').select('id,message,created_at,listing_id,listings(title)').eq('renter_id',user.id).order('created_at',{ascending:false});
+  const savedList=places.filter(p=>saved.has(p.id));
+  document.getElementById('dashBody').innerHTML=
+    cardsHTML([['Saved places',savedList.length,'Your favorites'],['Messages sent',(inq||[]).length,'To property owners']])+
+    `<div class="dash-section"><h2>Saved places ♥</h2>${savedList.length?`<div class="listing-grid">${savedList.map(cardHTML).join('')}</div>`:`<div class="table-wrap"><p class="empty-note">No saved places yet. Tap the ♡ on any listing to save it here.</p></div>`}</div>`+
+    `<div class="dash-section"><h2>Your messages</h2>${tableHTML(['Date','Place','Message'],(inq||[]).map(i=>[fmtDate(i.created_at),`<a href="#" class="textlink" onclick="viewListing('${i.listing_id}');return false">${esc(i.listings?.title||'Listing')}</a>`,esc(i.message)]),'You have not messaged any owners yet.')}</div>`;
+}
+
+async function renderOwnerDash(){
+  document.getElementById('dashSubtitle').textContent='Manage your listings and reply to interested renters.';
+  document.getElementById('dashActions').innerHTML=`<button class="btn btn-outline" onclick="showPage('home')">← Marketplace</button><button class="btn btn-primary" onclick="openListingForm()">＋ Post a listing</button>`;
+  const {data,error}=await sb.from('listings').select('*').eq('owner_id',user.id).order('created_at',{ascending:false});
+  if(error){document.getElementById('dashBody').innerHTML=`<p class="empty-note">Could not load your listings: ${esc(error.message)}</p>`;return}
+  ownerListings=data||[];
+  let inq=[];
+  if(ownerListings.length){const r=await sb.from('inquiries').select('*,listings(title)').in('listing_id',ownerListings.map(p=>p.id)).order('created_at',{ascending:false});inq=r.data||[]}
+  const active=ownerListings.filter(p=>p.status==='active'&&(p.approval||'approved')==='approved');
+  const pendingCount=ownerListings.filter(p=>p.approval==='pending').length;
+  const pf=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(pf.data)profile=pf.data;
+  const pro=await proPanelHTML();
+  await loadPromo();
+  const note=promoNoteText();
+  const report=await reportHTML();
+  document.getElementById('dashBody').innerHTML=(note?`<div class="promo-note">${note}</div>`:'')+(pendingCount?`<div class="promo-note" style="background:#eef5f4;border-color:#cfe3df;color:#1F5F5B">⏳ ${pendingCount} listing${pendingCount===1?' is':'s are'} waiting for review. We usually approve within 24 hours, then it goes live.</div>`:'')+
+    cardsHTML([['Your listings',ownerListings.length,`${active.length} visible to renters`],['Open slots',active.reduce((s,p)=>s+(p.slots||0),0),'Across visible listings'],['Messages',inq.length,'From interested renters'],['Featured',ownerListings.filter(isFeatured).length,isPro()?'Tahanan Pro':myPromoEnd?'Founding Owner promo':'Shown at the top']])+pro+
+    `<div class="dash-section"><h2>Your listings</h2>${tableHTML(['Photo','Listing','Rate','Slots','Status','Actions'],ownerListings.map(p=>[
+      `<img class="thumb-cell" src="${esc(photoOf(p))}" alt="">`,
+      `<strong>${esc(p.title)}</strong><br><span style="color:var(--muted)">${esc(p.type)} · ${esc(p.barangay)}</span>`,
+      money(p.price),p.slots,statusBadge(p),
+      `<div class="actions"><button class="btn btn-outline" onclick="viewListing('${p.id}')">View</button><button class="btn btn-outline" onclick="openListingForm('${p.id}')">Edit</button><button class="btn btn-outline" onclick="setListingStatus('${p.id}','${p.status==='active'?'hidden':'active'}')">${p.status==='active'?'Hide':'Show'}</button><button class="btn btn-danger" onclick="deleteListing('${p.id}')">Delete</button></div>`
+    ]),'You have no listings yet. Click "＋ Post a listing" to add your first room or house.')}</div>`+
+    report+`<div class="dash-section"><h2>Messages from renters 📩</h2>${tableHTML(['Date','Listing','From','Contact','Message'],inq.map(i=>[fmtDate(i.created_at),esc(i.listings?.title||''),esc(i.renter_name||'Renter'),`<a class="textlink" href="${esc(telHref(i.renter_contact))}">${esc(i.renter_contact||'')}</a>`,esc(i.message)]),'No messages yet. They will show up here when renters contact you.')}</div>`;
+}
+
+async function reportHTML(){
+  const [{data:stats},{data:bench}]=await Promise.all([sb.rpc('owner_listing_stats'),sb.rpc('normal_benchmark')]);
+  const b=(bench&&bench[0])||{};const benchViews=b.views_per_day?Number(b.views_per_day):null;
+  let tI=0,tV=0,tC=0;
+  const rows=(stats||[]).map(s=>{
+    const p=ownerListings.find(x=>x.id===s.listing_id);if(!p)return null;
+    const fv=s.feat_days?s.feat_views/s.feat_days:null;
+    const nv=s.norm_days?s.norm_views/s.norm_days:benchViews;
+    const imp=s.feat_impr+s.norm_impr,vw=s.feat_views+s.norm_views,ct=s.feat_contacts+s.norm_contacts;tI+=imp;tV+=vw;tC+=ct;
+    const boost=(fv!=null&&nv)?`<strong style="color:var(--teal)">${(fv/nv).toFixed(1)}x more views</strong>${s.norm_days?'':'<br><span style="color:var(--muted)">vs average listing</span>'}`:'<span style="color:var(--muted)">Collecting data...</span>';
+    return [`<strong>${esc(p.title)}</strong>`,imp,vw,ct,fv!=null?fv.toFixed(1):'-',nv!=null?nv.toFixed(1):'-',boost];
+  }).filter(Boolean);
+  return `<div class="dash-section"><h2>Performance report 📊</h2><p class="sub">Impressions = times your listing showed on screen. Views = times renters opened it. Contacts = calls and messages.</p>`+
+    cardsHTML([['Impressions',tI,'All time'],['Views',tV,'Listing opened'],['Contacts',tC,'Calls + messages'],['Click rate',tI?Math.round(tV/tI*100)+'%':'-','Views ÷ impressions']])+
+    tableHTML(['Listing','Impressions','Views','Contacts','Views/day Featured','Views/day Normal','Featured boost'],rows,'No data yet. Stats start counting once renters browse your listings.')+`</div>`;
+}
+
+/* =====================================================================
+   ADMIN PANEL
+   Tabs: Overview, Approvals, Listings, Users, Pro payments, Reports,
+   Messages, Marketing
+   ===================================================================== */
+const ADMIN_TABS=[['overview','📊 Overview'],['approvals','⏳ Approvals'],['listings','🏠 Listings'],['users','👥 Users'],['pro','🚀 Pro payments'],['reports','🚩 Reports'],['messages','📩 Messages'],['marketing','📣 Marketing']];
+
+async function renderAdminDash(){
+  document.getElementById('dashSubtitle').textContent='Approve listings, manage owners and renters, sell Pro, and control what the website shows.';
+  document.getElementById('dashActions').innerHTML=`<button class="btn btn-outline" onclick="showPage('home')">← Marketplace</button><button class="btn btn-primary" onclick="openListingForm()">＋ Post a listing</button>`;
+  const q=await Promise.all([
+    sb.from('listings').select('*,profiles!owner_id(full_name,phone)').order('created_at',{ascending:false}),
+    sb.rpc('admin_users'),
+    sb.rpc('admin_listing_stats',{p_days:30}),
+    sb.from('pro_requests').select('*,profiles(full_name,phone)').order('created_at',{ascending:false}),
+    sb.from('reports').select('*,listings(title),profiles(full_name)').order('created_at',{ascending:false}),
+    sb.from('inquiries').select('*,listings(title)').order('created_at',{ascending:false}).limit(1000)
+  ]);
+  const bad=q.find(r=>r.error);
+  if(bad){document.getElementById('dashBody').innerHTML=`<div class="table-wrap"><p class="empty-note">Could not load the admin panel: ${esc(bad.error.message)}<br><br>Did you run <strong>tahanan-admin-update.sql</strong> in Supabase SQL Editor?</p></div>`;return}
+  adminListings=q[0].data||[];
+  const stats={};(q[2].data||[]).forEach(s=>stats[s.listing_id]=s);
+  AD={users:q[1].data||[],stats,pro:q[3].data||[],reports:q[4].data||[],msgs:q[5].data||[]};
+  await loadPromo();
+  renderAdminTab();
+}
+function setAdminTab(k){adminTab=k;renderAdminTab();window.scrollTo({top:0,behavior:'smooth'})}
+function renderAdminTab(){
+  if(!AD)return;
+  const count={approvals:adminListings.filter(p=>p.approval==='pending').length,pro:AD.pro.filter(r=>r.status==='pending').length,reports:AD.reports.filter(r=>r.status==='open').length};
+  const tabs=`<div class="tabs admin-tabs">${ADMIN_TABS.map(([k,l])=>`<button type="button" class="tab ${adminTab===k?'active':''}" onclick="setAdminTab('${k}')">${l}${count[k]?` <span class="count">${count[k]}</span>`:''}</button>`).join('')}</div>`;
+  const views={overview:adminOverview,approvals:adminApprovals,listings:adminListingsTab,users:adminUsers,pro:adminPro,reports:adminReports,messages:adminMessages,marketing:adminMarketing};
+  document.getElementById('dashBody').innerHTML=tabs+(views[adminTab]||adminOverview)();
+}
+
+/* ---------- small admin helpers ---------- */
+function isPro(pf){pf=pf||profile;return pf?.plan==='pro'&&!!pf.plan_until&&new Date(pf.plan_until)>new Date()}
+function st(id){return AD.stats[id]||{impressions:0,views:0,contacts:0}}
+function thumbCell(p){return `<img class="thumb-cell" src="${esc(photoOf(p))}" alt="">`}
+function listingCell(p){return `<strong>${esc(p.title)}</strong><br><span style="color:var(--muted)">${esc(p.type)} · ${esc(p.barangay)} · ${fmtDate(p.created_at)}</span>`}
+function ownerCell(p){return `${esc(p.profiles?.full_name||'')}<br><span style="color:var(--muted)">${esc(p.profiles?.phone||'')}</span>`}
+function searchBox(id,ph){return `<input class="admin-search" placeholder="${ph}" oninput="filterRows(this,'${id}')">`}
+function filterRows(input,id){const q=input.value.toLowerCase();document.querySelectorAll(`#${id} tbody tr`).forEach(tr=>tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none')}
+function sectionHTML(title,sub,body){return `<div class="dash-section" style="margin-top:10px"><h2>${title}</h2>${sub?`<p class="sub">${sub}</p>`:''}${body}</div>`}
+function openMini(html){document.getElementById('miniContent').innerHTML=html;openModal('miniModal')}
+function manilaDate(d){return new Date(d).toLocaleDateString('en-CA',{timeZone:'Asia/Manila'})}
+
+/* ---------- OVERVIEW ---------- */
+function adminOverview(){
+  const u=AD.users,now=new Date();
+  const owners=u.filter(x=>x.role==='owner'),renters=u.filter(x=>x.role==='renter');
+  const pros=u.filter(x=>isPro(x));
+  const live=adminListings.filter(p=>p.status==='active'&&p.approval==='approved');
+  const pending=adminListings.filter(p=>p.approval==='pending').length;
+  const featured=adminListings.filter(isFeatured).length;
+  const revenue=AD.pro.filter(r=>r.status==='approved').reduce((s,r)=>s+Number(r.amount||0),0);
+  const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  const revMonth=AD.pro.filter(r=>r.status==='approved'&&new Date(r.reviewed_at||r.created_at)>=monthStart).reduce((s,r)=>s+Number(r.amount||0),0);
+  const newUsers=u.filter(x=>new Date(x.created_at)>Date.now()-7*864e5).length;
+  const openReports=AD.reports.filter(r=>r.status==='open').length;
+  const t=Object.values(AD.stats).reduce((a,s)=>({i:a.i+s.impressions,v:a.v+s.views,c:a.c+s.contacts}),{i:0,v:0,c:0});
+  const top=[...adminListings].filter(p=>st(p.id).views||st(p.id).impressions).sort((a,b)=>st(b.id).views-st(a.id).views).slice(0,8);
+  return sectionHTML('Marketplace','',
+      cardsHTML([['Users',u.length,`${newUsers} new this week`],['Owners',owners.length,`${pros.length} on Pro`],['Renters',renters.length,'Students & workers'],['Live listings',live.length,`${pending} waiting for approval`]])+
+      cardsHTML([['Pro revenue',money(revenue),`${money(revMonth)} this month`],['Featured now',featured,'Paid + promo spots'],['Promo slots left',promoSlotsLeft,'Founding Owner promo'],['Open reports',openReports,openReports?'Check the Reports tab':'All clear']]))+
+    sectionHTML('Traffic, last 30 days','Owners only see their own numbers. You see everything.',
+      cardsHTML([['Impressions',t.i,'Cards seen on screen'],['Views',t.v,'Listings opened'],['Contacts',t.c,'Calls + messages'],['Click rate',t.i?Math.round(t.v/t.i*100)+'%':'-','Views ÷ impressions']])+
+      tableHTML(['Listing','Owner','Impressions','Views','Contacts','Ad'],top.map(p=>[listingCell(p),ownerCell(p),st(p.id).impressions,st(p.id).views,st(p.id).contacts,isFeatured(p)?`<span class="status featured">⭐ Priority ${p.ad_priority||0}</span>`:'<span style="color:var(--muted)">Free</span>']),'No traffic yet. Numbers show up once renters browse listings.'));
+}
+
+/* ---------- APPROVALS ---------- */
+function adminApprovals(){
+  const pend=adminListings.filter(p=>p.approval==='pending');
+  const declined=adminListings.filter(p=>p.approval==='declined');
+  return sectionHTML('Waiting for approval ⏳','Check that photos look real, the price makes sense, and the address is specific. Approved listings go live right away and get ⭐ Featured if the owner has the Founding Owner promo or Pro.',
+      tableHTML(['Photo','Listing','Owner','Rate','Actions'],pend.map(p=>[thumbCell(p),listingCell(p),ownerCell(p),money(p.price),
+        `<div class="actions"><button class="btn btn-outline" onclick="viewListing('${p.id}')">View</button><button class="btn btn-teal" onclick="reviewListing('${p.id}','approved')">✓ Approve</button><button class="btn btn-danger" onclick="reviewListing('${p.id}','declined')">✕ Decline</button></div>`]),'All caught up! No listings waiting. 🎉'))+
+    (declined.length?sectionHTML('Declined','Owners can edit these to send them back for review.',
+      tableHTML(['Photo','Listing','Owner','Reason','Actions'],declined.map(p=>[thumbCell(p),listingCell(p),ownerCell(p),esc(p.decline_reason||''),
+        `<div class="actions"><button class="btn btn-outline" onclick="viewListing('${p.id}')">View</button><button class="btn btn-teal" onclick="reviewListing('${p.id}','approved')">✓ Approve</button></div>`]),'')):'');
+}
+async function reviewListing(id,decision){
+  let reason=null;
+  if(decision==='declined'){
+    reason=prompt('Why are you declining this listing? The owner will see this message.','Please upload clear, real photos of the room.');
+    if(reason===null)return;
+    reason=reason.trim().slice(0,300)||'Did not meet Tahanan listing guidelines.';
+  }
+  const {error}=await sb.from('listings').update({approval:decision,decline_reason:reason,reviewed_at:new Date().toISOString()}).eq('id',id);
+  if(error)return toast(error.message);
+  closeModal('detailModal');
+  toast(decision==='approved'?'Approved! The listing is now live. ✅':'Listing declined. The owner will see your reason.');
+  refreshAfterChange();
+}
+
+/* ---------- LISTINGS (edit everything + ads) ---------- */
+function adminListingsTab(){
+  const rows=adminListings.map(p=>[thumbCell(p),listingCell(p),ownerCell(p),money(p.price),statusBadge(p),
+    `${st(p.id).views} views<br><span style="color:var(--muted)">${st(p.id).contacts} contacts</span>`,
+    isFeatured(p)?`<span class="status featured">⭐ Until ${fmtDate(p.featured_until)}</span><br><span style="color:var(--muted)">Priority ${p.ad_priority||0}</span>`:'<span style="color:var(--muted)">Not promoted</span>',
+    `<div class="actions"><button class="btn btn-outline" onclick="viewListing('${p.id}')">View</button><button class="btn btn-outline" onclick="openListingForm('${p.id}')">Edit</button><button class="btn btn-primary" onclick="openPromote('${p.id}')">📣 Promote</button><button class="btn ${p.verified?'btn-outline':'btn-teal'}" onclick="setVerified('${p.id}',${!p.verified})">${p.verified?'Unverify':'✓ Verify'}</button>${p.approval!=='approved'?`<button class="btn btn-teal" onclick="reviewListing('${p.id}','approved')">Approve</button>`:''}<button class="btn btn-outline" onclick="setListingStatus('${p.id}','${p.status==='active'?'hidden':'active'}')">${p.status==='active'?'Hide':'Show'}</button><button class="btn btn-danger" onclick="deleteListing('${p.id}')">Delete</button></div>`]);
+  return sectionHTML(`All listings (${adminListings.length})`,'Promote a listing to put it at the top of search. Higher priority shows first, like a higher ad bid on Amazon.',
+    searchBox('admListings','Search by title, owner, barangay...')+`<div id="admListings">${tableHTML(['Photo','Listing','Owner','Rate','Status','Last 30 days','Ad','Actions'],rows,'No listings on the platform yet.')}</div>`);
+}
+function openPromote(id){
+  const p=findListing(id);if(!p)return;
+  openMini(`<h2 class="mini-h">📣 Promote listing</h2><p class="sub"><strong>${esc(p.title)}</strong><br>Featured listings show at the top of search with a ⭐ badge.</p>
+   <div class="formfield"><label>Featured until</label><input type="date" id="prUntil" value="${isFeatured(p)?manilaDate(p.featured_until):''}">
+    <div class="actions" style="margin-top:8px"><button type="button" class="btn btn-outline" onclick="addPromoDays(7)">+7 days</button><button type="button" class="btn btn-outline" onclick="addPromoDays(30)">+30 days</button><button type="button" class="btn btn-danger" onclick="document.getElementById('prUntil').value=''">Remove</button></div></div>
+   <div class="formfield"><label>Ad priority (0 to 10)</label><input type="number" id="prPriority" min="0" max="10" step="1" value="${p.ad_priority||0}"><div class="hint">10 = always first among Featured listings. Same priority = they take turns at the top.</div></div>
+   <button class="btn btn-primary full" id="prSave" onclick="savePromote('${id}')">Save</button>`);
+}
+function addPromoDays(n){const el=document.getElementById('prUntil');const base=el.value&&new Date(el.value+'T23:59:59+08:00')>new Date()?new Date(el.value+'T12:00:00+08:00'):new Date();base.setDate(base.getDate()+n);el.value=manilaDate(base)}
+async function savePromote(id){
+  const d=document.getElementById('prUntil').value;
+  const pr=Math.max(0,Math.min(10,parseInt(document.getElementById('prPriority').value)||0));
+  const until=d?new Date(d+'T23:59:59+08:00').toISOString():null;
+  if(until&&new Date(until)<new Date())return toast('Please pick a future date.');
+  const btn=document.getElementById('prSave');busy(btn,true,'Saving...');
+  const {error}=await sb.from('listings').update({featured_until:until,ad_priority:until?pr:0}).eq('id',id);
+  busy(btn,false);
+  if(error)return toast(error.message);
+  closeModal('miniModal');toast(until?`Promoted until ${fmtDate(until)} ⭐`:'Promotion removed.');refreshAfterChange();
+}
+function adminBarHTML(p){
+  const a=p.approval||'approved';
+  return `<div class="admin-bar">🛠️ Admin: ${a==='pending'?'⏳ Pending':a==='declined'?'✕ Declined':'✓ Approved'}${a!=='approved'?`<button class="btn btn-teal" onclick="reviewListing('${p.id}','approved')">✓ Approve</button>`:''}${a==='pending'?`<button class="btn btn-danger" onclick="reviewListing('${p.id}','declined')">✕ Decline</button>`:''}<button class="btn btn-outline" onclick="closeModal('detailModal');openListingForm('${p.id}')">Edit</button><button class="btn btn-outline" onclick="closeModal('detailModal');openPromote('${p.id}')">📣 Promote</button></div>`;
+}
+
+/* ---------- USERS (owners + renters) ---------- */
+function adminUsers(){
+  const roleSel=u=>u.id===user.id?'<span class="status pro">admin (you)</span>':`<select class="mini-select" onchange="setRole('${u.id}',this.value,this)">${['renter','owner','admin'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}</select>`;
+  const plan=u=>isPro(u)?`<span class="status pro">🚀 Pro until ${fmtDate(u.plan_until)}</span>`:'<span style="color:var(--muted)">Free</span>';
+  const act=u=>u.role==='owner'?`<div class="actions"><button class="btn btn-outline" onclick="givePro('${u.id}')">${isPro(u)?'+ Extend Pro':'Give Pro'}</button>${isPro(u)?`<button class="btn btn-danger" onclick="removePro('${u.id}')">Remove Pro</button>`:''}</div>`:'';
+  const rows=AD.users.map(u=>[`<strong>${esc(u.full_name||'(no name)')}</strong><br><span style="color:var(--muted)">${esc(u.email||'')}</span>`,esc(u.phone||''),roleSel(u),plan(u),fmtDate(u.created_at),u.last_sign_in_at?fmtDate(u.last_sign_in_at):'Never',u.listings,u.messages_sent,act(u)]);
+  const c=r=>AD.users.filter(u=>u.role===r).length;
+  return sectionHTML(`Users (${AD.users.length})`,`${c('owner')} owners · ${c('renter')} renters · ${c('admin')} admins. Change roles here or give an owner Pro manually.`,
+    searchBox('admUsers','Search by name, email, phone...')+`<div id="admUsers">${tableHTML(['User','Phone','Role','Plan','Joined','Last login','Listings','Messages sent','Actions'],rows,'No users yet.')}</div>`);
+}
+async function setRole(id,role,sel){
+  if(!confirm(`Change this user's role to ${role.toUpperCase()}?${role==='admin'?'\n\nAdmins can see and edit EVERYTHING.':''}`)){renderAdminTab();return}
+  if(sel)sel.disabled=true;
+  const {error}=await sb.rpc('admin_set_role',{p_user:id,p_role:role});
+  if(error){toast(error.message);renderAdminTab();return}
+  toast('Role updated ✅');refreshAfterChange();
+}
+async function givePro(id){
+  const d=prompt('Give Pro for how many days?',String(S.pro_days||30));if(d===null)return;
+  const days=parseInt(d);if(!(days>0))return toast('Please type a number of days.');
+  const {error}=await sb.rpc('admin_set_plan',{p_user:id,p_days:days});
+  if(error)return toast(error.message);
+  toast(`Pro added for ${days} days 🚀 Their listings are now Featured.`);refreshAfterChange();
+}
+async function removePro(id){
+  if(!confirm('Remove Pro from this owner? Their Pro Featured spots will end now.'))return;
+  const {error}=await sb.rpc('admin_set_plan',{p_user:id,p_days:0});
+  if(error)return toast(error.message);
+  toast('Pro removed.');refreshAfterChange();
+}
+
+/* ---------- PRO PAYMENTS ---------- */
+function adminPro(){
+  const sorted=[...AD.pro].sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1));
+  const badge=r=>r.status==='pending'?'<span class="status pending">⏳ Pending</span>':r.status==='approved'?'<span class="status">✓ Approved</span>':'<span class="status declined">✕ Rejected</span>';
+  const rows=sorted.map(r=>[fmtDate(r.created_at),`<strong>${esc(r.profiles?.full_name||'')}</strong><br><span style="color:var(--muted)">${esc(r.profiles?.phone||'')}</span>`,money(r.amount),`${r.days} days`,`<strong>${esc(r.reference)}</strong>`,badge(r),
+    r.status==='pending'?`<div class="actions"><button class="btn btn-teal" onclick="reviewPro('${r.id}',true)">✓ Confirm paid</button><button class="btn btn-danger" onclick="reviewPro('${r.id}',false)">✕ Reject</button></div>`:'']);
+  return sectionHTML('Pro payments 🚀','Open your GCash app, find the reference number, and check the amount before confirming. Confirming activates Pro and makes all their approved listings ⭐ Featured.',
+    (S.gcash_number?'':'<div class="promo-note">⚠️ Add your GCash number in the <strong>Marketing</strong> tab so owners know where to pay.</div>')+
+    tableHTML(['Date','Owner','Amount','Plan','GCash reference','Status','Actions'],rows,'No Pro payments yet.'));
+}
+async function reviewPro(id,approve){
+  if(!confirm(approve?'Confirm you received this payment in GCash? This activates Pro.':'Reject this payment?'))return;
+  const {error}=await sb.rpc('admin_review_pro',{p_id:id,p_approve:approve});
+  if(error)return toast(error.message);
+  toast(approve?'Pro activated! 🚀':'Payment rejected.');refreshAfterChange();
+}
+
+/* ---------- REPORTS ---------- */
+function adminReports(){
+  const sorted=[...AD.reports].sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1));
+  const rows=sorted.map(r=>{const p=findListing(r.listing_id);return [fmtDate(r.created_at),
+    `<a href="#" class="textlink" onclick="viewListing('${r.listing_id}');return false">${esc(r.listings?.title||'Listing')}</a>`,
+    `<strong>${esc(r.reason)}</strong>`,esc(r.details||''),esc(r.profiles?.full_name||'User'),
+    r.status==='open'?'<span class="status declined">Open</span>':'<span class="status">Resolved</span>',
+    `<div class="actions">${p&&p.status==='active'?`<button class="btn btn-outline" onclick="setListingStatus('${r.listing_id}','hidden')">Hide listing</button>`:''}${r.status==='open'?`<button class="btn btn-teal" onclick="resolveReport('${r.id}')">✓ Resolved</button>`:''}</div>`]});
+  return sectionHTML('Reports 🚩','Renters can flag scams, fake photos, or wrong details. Hide the listing while you check, then mark the report resolved.',
+    tableHTML(['Date','Listing','Reason','Details','Reported by','Status','Actions'],rows,'No reports. 🙌'));
+}
+async function resolveReport(id){
+  const {error}=await sb.from('reports').update({status:'resolved'}).eq('id',id);
+  if(error)return toast(error.message);
+  toast('Report resolved ✅');refreshAfterChange();
+}
+
+/* ---------- MESSAGES (all renter inquiries) ---------- */
+function adminMessages(){
+  const rows=AD.msgs.map(i=>[fmtDate(i.created_at),esc(i.listings?.title||''),esc(i.renter_name||'Renter'),`<a class="textlink" href="${esc(telHref(i.renter_contact))}">${esc(i.renter_contact||'')}</a>`,esc(i.message)]);
+  return sectionHTML(`Messages (${AD.msgs.length})`,'Every message renters sent to owners. Useful for spotting demand and scams.',
+    searchBox('admMsgs','Search messages...')+`<div id="admMsgs">${tableHTML(['Date','Listing','From','Contact','Message'],rows,'No messages yet.')}</div>`);
+}
+
+/* ---------- MARKETING (edit site content without code) ---------- */
+function adminMarketing(){
+  const f=(k,label,type,hint)=>`<div class="formfield"><label>${label}</label><input id="mk_${k}" type="${type||'text'}" ${type==='number'?'min="0" step="1"':''} value="${esc(S[k])}">${hint?`<div class="hint">${hint}</div>`:''}</div>`;
+  return sectionHTML('Marketing & site content 📣','Changes show on the website for everyone as soon as you save.',
+    `<div class="panel"><form onsubmit="saveMarketing(event)">
+     <h3 class="detail-h" style="margin-top:0">Promo banner (top of homepage)</h3>
+     <label class="check"><input type="checkbox" id="mk_promo_enabled" ${isOn(S.promo_enabled)?'checked':''}> Show the promo banner and give free Featured to new owners</label>
+     <div class="formrow">${f('promo_title','Headline')}${f('promo_button','Button text')}</div>
+     ${f('promo_text','Promo text')}
+     <div class="formrow">${f('promo_slots','Founding Owner slots','number',`${promoSlotsLeft} left right now`)}${f('promo_days','Free Featured days','number')}</div>
+     <h3 class="detail-h">Homepage headline</h3>
+     <div class="formrow">${f('hero_line1','Line 1')}${f('hero_line2','Line 2')}</div>
+     ${f('hero_highlight','Highlighted word (orange)')}
+     <div class="formfield"><label>Text under the headline</label><textarea id="mk_hero_text" maxlength="400">${esc(S.hero_text)}</textarea></div>
+     <h3 class="detail-h">Tahanan Pro (owner subscription)</h3>
+     <div class="formrow">${f('pro_price','Price (₱)','number')}${f('pro_days','Days per payment','number')}</div>
+     <div class="formfield"><label>Pro benefits (one per line)</label><textarea id="mk_pro_benefits" maxlength="800">${esc(S.pro_benefits)}</textarea></div>
+     <div class="formrow">${f('gcash_number','GCash number','text','Owners send Pro payments here')}${f('gcash_name','GCash account name')}</div>
+     <button class="btn btn-primary full" type="submit">Save changes</button>
+    </form></div>`);
+}
+async function saveMarketing(e){
+  e.preventDefault();const btn=e.submitter;
+  const v={...S};
+  ['promo_title','promo_text','promo_button','hero_line1','hero_line2','hero_highlight','hero_text','pro_benefits','gcash_number','gcash_name'].forEach(k=>v[k]=document.getElementById('mk_'+k).value.trim());
+  v.promo_slots=Math.max(0,parseInt(document.getElementById('mk_promo_slots').value)||0);
+  ['promo_days','pro_price','pro_days'].forEach(k=>v[k]=Math.max(1,parseInt(document.getElementById('mk_'+k).value)||1));
+  v.promo_enabled=document.getElementById('mk_promo_enabled').checked;
+  busy(btn,true,'Saving...');
+  const {error}=await sb.from('site_settings').upsert({key:'marketing',value:v,updated_at:new Date().toISOString()});
+  busy(btn,false);
+  if(error)return toast('Could not save: '+error.message);
+  S={...DEFAULT_SETTINGS,...v};applySettings();await loadPromo();renderAdminTab();
+  toast('Saved! The website is updated. ✅');
+}
+
+/* =====================================================================
+   OWNER: Tahanan Pro subscription
+   ===================================================================== */
+async function proPanelHTML(){
+  const {data}=await sb.from('pro_requests').select('*').eq('owner_id',user.id).order('created_at',{ascending:false}).limit(1);
+  myProReq=(data&&data[0])||null;
+  const benefits=String(S.pro_benefits||'').split('\n').map(b=>b.trim()).filter(Boolean).map(b=>`<li>${esc(b)}</li>`).join('');
+  const pending=myProReq?.status==='pending';
+  let action;
+  if(isPro())action=`<span class="status featured">🚀 Pro until ${fmtDate(profile.plan_until)}</span>${pending?'<span class="status pending">⏳ Extension under review</span>':'<button class="btn btn-outline" onclick="openUpgrade()">Extend</button>'}`;
+  else if(pending)action='<span class="status pending">⏳ Payment under review</span>';
+  else action=`<button class="btn btn-primary" onclick="openUpgrade()">Upgrade · ${money(S.pro_price)} / ${Number(S.pro_days)} days</button>`;
+  const note=myProReq?.status==='rejected'?'<p class="hint">We could not confirm your last payment. Message us if you think this is a mistake.</p>':'';
+  return `<div class="pro-card"><div><h2>🚀 Tahanan Pro</h2><ul>${benefits}</ul></div><div><div class="pro-action">${action}</div>${note}</div></div>`;
+}
+function openUpgrade(){
+  if(!S.gcash_number)return openMini(`<h2 class="mini-h">Tahanan Pro 🚀</h2><p class="sub">Online payment is being set up. Please message the Tahanan team to upgrade.</p>`);
+  openMini(`<h2 class="mini-h">Upgrade to Tahanan Pro 🚀</h2><p class="sub">${money(S.pro_price)} for ${Number(S.pro_days)} days. All your approved listings get ⭐ Featured and show above free listings.</p>
+   <div class="pay-box"><span>Send ${money(S.pro_price)} via GCash to</span><strong>${esc(S.gcash_number)}</strong><span>${esc(S.gcash_name||'')}</span></div>
+   <form onsubmit="submitUpgrade(event)"><div class="formfield"><label>GCash reference number</label><input id="proRef" required minlength="4" maxlength="60" placeholder="e.g. 1234 567 890123"><div class="hint">You can find it on your GCash receipt. We turn on Pro once we confirm the payment, usually within 24 hours.</div></div>
+   <button class="btn btn-primary full" type="submit">I've paid, submit</button></form>`);
+}
+async function submitUpgrade(e){
+  e.preventDefault();const btn=e.submitter;busy(btn,true,'Submitting...');
+  const {error}=await sb.from('pro_requests').insert({reference:val('proRef')});
+  busy(btn,false);
+  if(error)return toast(/duplicate|unique/i.test(error.message)?'You already have a payment under review. 🙏':'Could not submit: '+error.message);
+  closeModal('miniModal');toast('Payment submitted! We will turn on Pro once confirmed. 🚀');goDashboard();
+}
+
+/* =====================================================================
+   RENTERS: report a listing
+   ===================================================================== */
+const REPORT_REASONS=['Scam or asking for money before a visit','Fake or wrong photos','Wrong price or details','Place is already full','Rude or offensive content','Other'];
+function openReport(id){
+  if(!user){closeModal('detailModal');toast('Log in to report a listing.');return openAuth('login')}
+  openMini(`<h2 class="mini-h">Report this listing 🚩</h2><p class="sub">Tell us what's wrong. The owner won't see your name.</p>
+   <form onsubmit="submitReport(event,'${id}')"><div class="formfield"><label>Reason</label><select id="repReason">${REPORT_REASONS.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
+   <div class="formfield"><label>Details (optional)</label><textarea id="repDetails" maxlength="1000" placeholder="What happened?"></textarea></div>
+   <button class="btn btn-danger full" type="submit">Send report</button></form>`);
+}
+async function submitReport(e,id){
+  e.preventDefault();const btn=e.submitter;busy(btn,true,'Sending...');
+  const {error}=await sb.from('reports').insert({listing_id:id,reason:document.getElementById('repReason').value,details:val('repDetails')||null});
+  busy(btn,false);
+  if(error)return toast('Could not send: '+error.message);
+  closeModal('miniModal');toast('Thanks for reporting! Our team will check this listing. 🙏');
+}
+
+/* ---------- listing actions ---------- */
+async function refreshAfterChange(){await loadListings();if(document.getElementById('dashboard').classList.contains('active'))await goDashboard()}
+async function setListingStatus(id,status){
+  const {error}=await sb.from('listings').update({status}).eq('id',id);
+  if(error)return toast(error.message);
+  toast(status==='active'?'Listing is now visible to renters.':'Listing hidden from search.');refreshAfterChange();
+}
+async function setVerified(id,v){
+  const {error}=await sb.from('listings').update({verified:v}).eq('id',id);
+  if(error)return toast(error.message);
+  toast(v?'Listing verified ✓':'Verification removed.');refreshAfterChange();
+}
+async function setFeatured(id,on){
+  const until=on?new Date(Date.now()+30*864e5).toISOString():null;
+  const {error}=await sb.from('listings').update({featured_until:until}).eq('id',id);
+  if(error)return toast(error.message);
+  toast(on?'Listing featured for 30 days ⭐':'Featured removed.');refreshAfterChange();
+}
+async function deleteListing(id){
+  const p=findListing(id);if(!p)return;
+  if(!confirm(`Delete "${p.title}"? This cannot be undone.`))return;
+  const {error}=await sb.from('listings').delete().eq('id',id);
+  if(error)return toast(error.message);
+  await removeStorageFiles(p.photos||[]);toast('Listing deleted.');refreshAfterChange();
+}
+
+/* =====================================================================
+   7. ADD / EDIT LISTING FORM + PHOTO UPLOADS
+   ===================================================================== */
+function openListingForm(id){
+  if(!user)return openAuth('signup','owner');
+  if(!['owner','admin'].includes(profile?.role))return becomeOwner();
+  editingId=id||null;const p=id?findListing(id):null;
+  document.getElementById('listingForm').reset();
+  document.getElementById('formTitle').textContent=p?'Edit listing':'Post a new listing';
+  const set=(f,v)=>{document.getElementById(f).value=v??''};
+  if(p){set('lf_title',p.title);set('lf_type',p.type);set('lf_price',p.price);set('lf_slots',p.slots);set('lf_gender',p.gender);set('lf_tenant',p.tenant_type);set('lf_status',p.status);set('lf_barangay',p.barangay);set('lf_landmark',p.landmark);set('lf_address',p.address);set('lf_contact',p.contact_number);set('lf_desc',p.description);set('lf_rules',p.house_rules)}
+  else set('lf_contact',profile?.phone||'');
+  document.querySelectorAll('#amenityPicks input').forEach(i=>i.checked=!!p&&(p.amenities||[]).includes(i.value));
+  newFiles.forEach(f=>URL.revokeObjectURL(f.url));
+  keptPhotos=p?[...(p.photos||[])]:[];removedPhotos=[];newFiles=[];renderPreviews();
+  const fn=document.getElementById('formPromoNote'),txt=p?'':promoNoteText();
+  fn.style.display=txt?'block':'none';fn.innerHTML=txt;
+  openModal('formModal');
+}
+function addPhotos(input){
+  for(const file of input.files){
+    if(!file.type.startsWith('image/')){toast(`${file.name} is not a photo.`);continue}
+    if(keptPhotos.length+newFiles.length>=MAX_PHOTOS){toast(`Maximum of ${MAX_PHOTOS} photos per listing.`);break}
+    newFiles.push({file,url:URL.createObjectURL(file)});
+  }
+  input.value='';renderPreviews();
+}
+function removePhoto(kind,i){
+  if(kind==='kept')removedPhotos.push(keptPhotos.splice(i,1)[0]);
+  else{URL.revokeObjectURL(newFiles[i].url);newFiles.splice(i,1)}
+  renderPreviews();
+}
+function renderPreviews(){
+  const all=keptPhotos.map((u,i)=>({src:u,kind:'kept',i})).concat(newFiles.map((f,i)=>({src:f.url,kind:'new',i})));
+  document.getElementById('photoPreviews').innerHTML=all.map((x,n)=>`<div><img src="${esc(x.src)}" alt="">${n===0?'<span class="cover">COVER</span>':''}<button type="button" onclick="removePhoto('${x.kind}',${x.i})" aria-label="Remove photo">×</button></div>`).join('');
+}
+// Shrinks big phone photos (max 1600px, JPEG) so uploads are fast on mobile data
+async function compressImage(file){
+  try{
+    const bmp=await createImageBitmap(file);
+    const scale=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*scale);c.height=Math.round(bmp.height*scale);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.82));
+    return blob||file;
+  }catch(err){return file}
+}
+async function uploadPhoto(file){
+  const blob=await compressImage(file);
+  const ext=blob.type==='image/jpeg'?'jpg':blob.type==='image/png'?'png':'webp';
+  const path=`${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,blob,{cacheControl:'3600',upsert:false,contentType:blob.type||'image/jpeg'});
+  if(error)throw error;
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+function storagePath(url){const m=`/object/public/${BUCKET}/`,i=String(url).indexOf(m);return i<0?null:decodeURIComponent(url.slice(i+m.length))}
+async function removeStorageFiles(urls){const paths=urls.map(storagePath).filter(Boolean);if(paths.length)await sb.storage.from(BUCKET).remove(paths)}
+
+async function saveListing(e){
+  e.preventDefault();
+  if(keptPhotos.length+newFiles.length===0)return toast('Please add at least 1 photo so renters can see your place. 📷');
+  const btn=document.getElementById('saveBtn');busy(btn,true,'Saving...');
+  const uploaded=[];
+  try{
+    for(let i=0;i<newFiles.length;i++){btn.textContent=`Uploading photo ${i+1} of ${newFiles.length}...`;uploaded.push(await uploadPhoto(newFiles[i].file))}
+    btn.textContent='Saving listing...';
+    const payload={
+      title:val('lf_title'),type:val('lf_type'),price:Number(val('lf_price')),slots:Number(val('lf_slots')),
+      gender:val('lf_gender'),tenant_type:val('lf_tenant'),status:val('lf_status'),
+      barangay:val('lf_barangay'),landmark:val('lf_landmark')||null,address:val('lf_address'),
+      contact_number:val('lf_contact')||null,description:val('lf_desc')||null,house_rules:val('lf_rules')||null,
+      amenities:[...document.querySelectorAll('#amenityPicks input:checked')].map(i=>i.value),
+      photos:keptPhotos.concat(uploaded)
+    };
+    const res=editingId?await sb.from('listings').update(payload).eq('id',editingId).select().single():await sb.from('listings').insert(payload).select().single();
+    if(res.error)throw res.error;
+    const d=res.data;
+    if(removedPhotos.length)await removeStorageFiles(removedPhotos);
+    newFiles.forEach(f=>URL.revokeObjectURL(f.url));newFiles=[];
+    let msg;
+    if(editingId)msg=d.approval==='pending'?'Listing saved and sent for review ⏳':'Listing updated! ✅';
+    else msg=d.approval==='pending'?'Submitted! ⏳ We review new listings within 24 hours, then it goes live.':isFeatured(d)?`Your listing is live and ⭐ FEATURED until ${fmtDate(d.featured_until)}! 🎉`:'Your listing is live! 🎉';
+    closeModal('formModal');toast(msg);
+    await refreshAfterChange();
+  }catch(err){
+    if(uploaded.length)await removeStorageFiles(uploaded);
+    toast('Could not save: '+(err.message||err));
+  }finally{busy(btn,false)}
+}
+
+/* =====================================================================
+   8. TAHANAN HELPER CHAT (searches the real listings)
+   ===================================================================== */
+function toggleChat(){document.getElementById('chatbox').classList.toggle('open')}
+function sendChat(e){
+  e.preventDefault();
+  const input=document.getElementById('chatInput'),q=input.value.trim();if(!q)return;
+  const box=document.getElementById('chatmessages');
+  box.insertAdjacentHTML('beforeend',`<div class="bubble me">${esc(q)}</div>`);input.value='';
+  const lower=q.toLowerCase();let answer;
+  if(/reserv|payment|bayad|\bpay\b|deposit/.test(lower)){
+    answer='Tahanan does not handle payments yet. Always visit the place first, get written terms and a receipt, and never send money to someone you have not verified.';
+  }else{
+    const m=lower.match(/(?:under|below|max|less than|hanggang|budget|upto|up to)\s*(?:of\s*)?₱?\s*([\d,]+)\s*(k)?/);
+    const maxP=m?Number(m[1].replace(/,/g,''))*(m[2]?1000:1):null;
+    const wantType=/bed ?space/.test(lower)?'Bedspace':/\bsolo\b/.test(lower)?'Solo Room':/shared/.test(lower)?'Shared Room':/studio/.test(lower)?'Studio':/apartment/.test(lower)?'Apartment':/\bhouse\b/.test(lower)?'Whole House':null;
+    const female=/female|ladies|babae|girl/.test(lower),male=!female&&/\bmale\b|\bboys?\b|lalaki/.test(lower);
+    const area=[...new Set(places.map(p=>p.barangay.toLowerCase()))].find(b=>lower.includes(b));
+    const msu=/msu|iit/.test(lower);
+    const hasFilter=female||male||maxP||wantType||area||msu;
+    const matches=places.filter(p=>(!female||p.gender!=='Male only')&&(!male||p.gender!=='Female only')&&(!maxP||p.price<=maxP)&&(!wantType||p.type===wantType)&&(!area||p.barangay.toLowerCase()===area)&&(!msu||/msu|iit/i.test(p.landmark||'')||p.barangay==='Tibanga'));
+    if(hasFilter&&matches.length){
+      box.insertAdjacentHTML('beforeend',`<div class="bubble">Here are some places that may fit 👇<br><br>${matches.slice(0,4).map(p=>`<a href="#" class="textlink" style="font-size:12px" onclick="viewListing('${p.id}');return false">${esc(p.title)}</a><br>${money(p.price)}/month · ${esc(p.barangay)}`).join('<br><br>')}</div>`);
+      box.scrollTop=box.scrollHeight;return;
+    }
+    answer=hasFilter?'No exact match yet. Try a higher budget or a nearby barangay. New listings are added all the time!':'Tell me your budget (e.g. under ₱3,000), room type (bedspace, solo room, studio), and preferred area like Tibanga, Pala-o, or near MSU-IIT.';
+  }
+  box.insertAdjacentHTML('beforeend',`<div class="bubble">${esc(answer)}</div>`);box.scrollTop=box.scrollHeight;
+}
+
+/* =====================================================================
+   9. START THE APP
+   ===================================================================== */
+document.getElementById('lf_type').innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
+document.getElementById('barangayList').innerHTML=BARANGAYS.map(b=>`<option value="${b}">`).join('');
+document.getElementById('amenityPicks').innerHTML=AMENITIES.map(a=>`<label><input type="checkbox" value="${a}"> ${a}</label>`).join('');
+updateNav();
+loadListings();
+loadSettings().finally(()=>loadPromo());
+initAuth();
+</script>
+</body></html>
