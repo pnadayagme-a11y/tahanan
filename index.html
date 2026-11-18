@@ -239,6 +239,16 @@ function ownerApproved(pf){pf=pf||profile;return pf?.role==='admin'||pf?.owner_s
 function isOwnerRole(pf){pf=pf||profile;return ['owner','admin'].includes(pf?.role)}
 function profileFields(pf){return isOwnerRole(pf)?OWNER_PROFILE_FIELDS:PROFILE_FIELDS}
 function faceDone(pf){pf=pf||profile;return ['pending','approved'].includes(pf?.face_status)}// scan submitted (or already approved)
+function renterIdDone(pf){pf=pf||profile;return ['pending','approved'].includes(pf?.renter_id_status)}// renter's government ID submitted
+// renters must finish: face scan -> profile -> valid ID, before they can message owners
+function renterReady(){return faceDone()&&profileComplete()&&renterIdDone()}
+function nextRenterStep(){
+  if(!user||profile?.role!=='renter')return false;
+  if(!faceDone()){openFaceScan();return true}
+  if(!profileComplete()){openProfileEditor();return true}
+  if(!renterIdDone()){openRenterIdUpload();return true}
+  return false;
+}
 function profileMissing(pf){pf=pf||profile||{};return profileFields(pf).filter(([k])=>!String(pf[k]||'').trim()).map(f=>f[1])}
 function profileComplete(pf){return profileMissing(pf).length===0}
 async function reloadProfile(){if(!user)return;const {data}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(data)profile=data}
@@ -335,9 +345,10 @@ function viewListing(id){
     contact=`<p class="sub" style="margin:0 0 12px">Log in or create a free account to see the owner's contact number and send a message.</p><button class="btn btn-primary" onclick="closeModal('detailModal');openAuth('login')">Log in to contact owner</button>`;
   }else if(user.id===p.owner_id){
     contact=`<p class="sub" style="margin:0">This is your listing. Messages from renters show up in your dashboard, where you can reply.</p>`;
-  }else if(profile?.role==='renter'&&(!faceDone()||!profileComplete())){
-    const needFace=!faceDone();
-    contact=`<p class="sub" style="margin:0 0 12px">Owners want to know who they're renting to. ${needFace?'Do a quick face scan (30 seconds) and build your renter profile':'Build your renter profile first (it only takes 2 minutes)'}, then you can see the owner's number and send a message.</p><button class="btn btn-primary" onclick="closeModal('detailModal');${needFace?'openFaceScan()':'openProfileEditor()'}">${needFace?'🙂 Verify my face':'👤 Build my profile'}</button>`;
+  }else if(profile?.role==='renter'&&!renterReady()){
+    const todo=[!faceDone()&&'a quick face scan',!profileComplete()&&'your renter profile',!renterIdDone()&&'a valid government ID'].filter(Boolean);
+    const btnTxt=!faceDone()?'🙂 Verify my face':!profileComplete()?'👤 Build my profile':'🪪 Upload my valid ID';
+    contact=`<p class="sub" style="margin:0 0 12px">Owners want to know who they're renting to. Finish ${todo.join(', ').replace(/, ([^,]*)$/,' and $1')}, then you can see the owner's number and send a message.</p><button class="btn btn-primary" onclick="closeModal('detailModal');nextRenterStep()">${btnTxt}</button>`;
   }else{
     contact=`${p.contact_number?`<p style="margin:0 0 14px;font-size:14px">📞 Call or text: <a class="textlink" style="font-size:14px" onclick="logEvent(['${p.id}'],'contact')" href="${esc(telHref(p.contact_number))}">${esc(p.contact_number)}</a></p>`:''}<form onsubmit="sendInquiry(event,'${p.id}')"><div class="formfield"><label>Your contact number</label><input id="inqContact" type="tel" value="${esc(profile?.phone||'')}" placeholder="09XX XXX XXXX" required></div><div class="formfield"><label>Message to owner</label><textarea id="inqMessage" maxlength="1000" required>Hi po! Is this place still available? I'm interested and would like to visit.</textarea></div><button type="submit" class="btn btn-primary full">Send message</button></form>`;
   }
@@ -444,7 +455,7 @@ function roleHint(){
   const r=document.querySelector('input[name=role]:checked')?.value;
   document.getElementById('roleHint').innerHTML=r==='owner'
     ?'🪪 Right after you log in: a quick <strong>live face scan</strong>, your host profile with photo, then a <strong>valid government ID</strong> and <strong>business permit</strong>. Our team approves owner accounts within 24 hours, then you can post.'
-    :'🎒 After signing up: a quick <strong>live face scan</strong> (30 seconds) and a short renter profile with your photo, so owners know they can trust you.';
+    :'🎒 After signing up: a quick <strong>live face scan</strong> (30 seconds), a short renter profile with your photo, and a photo of a <strong>valid government ID</strong>, so owners know they can trust you.';
 }
 function setAuthMode(mode){
   document.querySelectorAll('#login .tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
@@ -647,7 +658,14 @@ async function submitOwnerDocs(e){
 /* =====================================================================
    RENTER PROFILE: what owners check before trusting a renter
    ===================================================================== */
-function faceRowHTML(){
+function faceRowHTML(){return faceOnlyRowHTML()+(profile?.role==='renter'?`<div style="margin-top:8px">${renterIdRowHTML()}</div>`:'')}
+function renterIdRowHTML(){
+  const s=profile?.renter_id_status||'none';
+  if(s==='approved')return '<span class="status pro">🪪 ID verified</span>';
+  if(s==='pending')return '<span class="status pending">🪪 Valid ID uploaded · under review</span>';
+  return `${s==='declined'?`<span class="status declined">✕ ID not approved</span>${profile.renter_id_decline_reason?` <span class="hint">${esc(profile.renter_id_decline_reason)}</span>`:''}<br>`:''}<button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="openRenterIdUpload()">🪪 ${s==='declined'?'Upload my ID again':'Upload my valid ID'}</button>`;
+}
+function faceOnlyRowHTML(){
   const s=profile?.face_status||'none';
   if(s==='approved')return '<span class="status pro">🙂 Face verified</span>';
   if(s==='pending')return '<span class="status pending">🙂 Face scan done · under review</span>';
@@ -836,7 +854,52 @@ async function captureSelfie(v){
     if(a)a.innerHTML=`<p class="notice ok show">✅ Done! Our team will double-check your scan${isOwnerRole()?' together with your ID':''}. ${profileComplete()?'':'Next, build your profile.'}</p><button class="btn btn-primary full" onclick="faceContinue()">${profileComplete()?'Done':'Next: build my profile →'}</button>`;
   }catch(err){faceMsg('Upload failed');showFaceRetry('Could not save your scan: '+(err.message||err))}
 }
-function faceContinue(){closeModal('miniModal');if(!profileComplete())openProfileEditor()}
+/* =====================================================================
+   RENTER VALID ID: renters upload a government ID, admin checks it.
+   Stored in the PRIVATE owner-docs bucket. Owners never see the ID,
+   only a "🪪 ID verified" badge.
+   ===================================================================== */
+function openRenterIdUpload(){
+  if(!user)return openAuth('login');
+  if(profile?.renter_id_status==='approved')return toast('Your ID is already verified. ✅');
+  const s=profile?.renter_id_status;
+  openMini(`<h2 class="mini-h">🪪 Upload a valid government ID</h2><p class="sub">Owners feel safer renting to verified people. Only the Tahanan admin team sees your ID. Owners only see a "🪪 ID verified" badge.</p>
+   ${s==='declined'?`<div class="notice err show">Your last ID was not approved.<br><strong>Reason:</strong> ${esc(profile.renter_id_decline_reason||'We could not verify your ID.')}</div>`:''}
+   <form onsubmit="submitRenterId(event)">
+    <div class="formfield doc-pick"><label>Valid government ID</label>
+     <div class="actions" style="margin:6px 0"><label class="btn btn-outline pick-btn">📷 Take a photo<input type="file" accept="image/*" capture="environment" hidden onchange="pickRenterId(this)"></label><label class="btn btn-outline pick-btn">🖼️ Choose a file<input type="file" accept="image/*,application/pdf" hidden onchange="pickRenterId(this)"></label></div>
+     <div id="ridPreview" class="hint">No file chosen yet.</div>
+     <div class="hint">PhilSys National ID, driver's license, passport, UMID, postal ID, voter's ID, PRC ID, or PhilHealth ID. Your name and photo must be clear and match your profile.</div></div>
+    <label class="check"><input type="checkbox" required> This ID is real and mine.</label>
+    <button class="btn btn-primary full" type="submit" id="ridSave">Submit my ID</button>
+   </form>`);
+}
+let renterIdFile=null;
+function pickRenterId(input){
+  const f=input.files[0];input.value='';if(!f)return;
+  if(f.type!=='application/pdf'&&!f.type.startsWith('image/'))return toast('Please pick a photo or PDF of your ID.');
+  if(f.size>10*1024*1024)return toast('That file is too big. Maximum is 10MB.');
+  renterIdFile=f;
+  const box=document.getElementById('ridPreview');
+  if(box)box.innerHTML=f.type.startsWith('image/')?`<img src="${URL.createObjectURL(f)}" alt="ID preview" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--line);background:#fff">`:`📄 ${esc(f.name)}`;
+}
+async function submitRenterId(e){
+  e.preventDefault();const btn=document.getElementById('ridSave');
+  if(!renterIdFile)return toast('Please add a photo of your ID first. 🪪');
+  busy(btn,true,'Uploading ID...');
+  try{
+    const path=await uploadDoc(renterIdFile,'renter-id');
+    btn.textContent='Submitting...';
+    const {error}=await sb.rpc('submit_renter_id',{p_path:path});
+    if(error)throw error;
+    renterIdFile=null;await reloadProfile();closeModal('miniModal');
+    toast(renterReady()?'ID submitted! ✅ You can now message owners.':'ID submitted! ✅');
+    if(document.getElementById('dashboard').classList.contains('active'))goDashboard();
+    nextRenterStep();
+  }catch(err){toast('Could not submit: '+(err.message||err))}
+  finally{busy(btn,false)}
+}
+function faceContinue(){closeModal('miniModal');if(nextRenterStep())return;if(!profileComplete())openProfileEditor()}
 async function saveProfile(e){
   e.preventDefault();const btn=document.getElementById('pfSave');
   if(!avatarFile&&!profile?.avatar_url)return toast('Please add a profile photo. 📷');
@@ -859,22 +922,23 @@ async function saveProfile(e){
     if(error)throw error;
     if(v.avatar_url&&oldAvatar){const m=`/object/public/${AVATAR_BUCKET}/`,i=oldAvatar.indexOf(m);if(i>=0)sb.storage.from(AVATAR_BUCKET).remove([decodeURIComponent(oldAvatar.slice(i+m.length))])}
     await reloadProfile();closeModal('miniModal');
-    toast(!profileComplete()?'Saved! A few details are still missing.':isOwnerRole()?'Host profile saved! ✅':faceDone()?'Profile saved! You can now message owners. ✅':'Profile saved! ✅ Do your face scan so you can message owners.');
+    toast(!profileComplete()?'Saved! A few details are still missing.':isOwnerRole()?'Host profile saved! ✅':renterReady()?'Profile saved! You can now message owners. ✅':'Profile saved! ✅ One more step to message owners.');
     if(document.getElementById('dashboard').classList.contains('active'))goDashboard();
+    if(profileComplete())nextRenterStep();
   }catch(err){toast('Could not save: '+(err.message||err))}
   finally{busy(btn,false)}
 }
 // The profile card owners (and admins) see. backTo = chat to return to.
 async function renterCard(id,backTo){
   if(!id)return toast('This renter has no profile yet.');
-  const [{data,error},fv]=await Promise.all([sb.rpc('renter_card',{p_renter:id}),sb.rpc('face_verified',{p_user:id})]);
+  const [{data,error},fv]=await Promise.all([sb.rpc('renter_card',{p_renter:id}),sb.rpc('user_badges',{p_user:id})]);
   if(error)return toast('Could not load profile: '+error.message);
   const r=data&&data[0];
   if(!r)return toast('You can only view profiles of renters who messaged you.');
   const miss=profileMissing(r);
   const fb=/^https?:\/\//i.test(r.facebook_url||'')?`<a class="textlink" href="${esc(r.facebook_url)}" target="_blank" rel="noopener">Facebook profile ↗</a>`:'';
   const work=[r.school_or_company,r.course_or_position].filter(Boolean).map(esc).join(' · ');
-  openMini(`<div class="rc-head"><img class="avatar" src="${esc(r.avatar_url||AVATAR_FALLBACK)}" alt=""><div><h2>${esc(r.full_name||'Renter')}</h2><span class="status ${miss.length?'pending':''}">${miss.length?'Profile incomplete':'✓ Complete profile'}</span> ${fv.data===true?'<span class="status pro">🙂 Face verified</span>':''}</div></div>
+  openMini(`<div class="rc-head"><img class="avatar" src="${esc(r.avatar_url||AVATAR_FALLBACK)}" alt=""><div><h2>${esc(r.full_name||'Renter')}</h2><span class="status ${miss.length?'pending':''}">${miss.length?'Profile incomplete':'✓ Complete profile'}</span> ${fv.data?.[0]?.face_verified?'<span class="status pro">🙂 Face verified</span>':''} ${fv.data?.[0]?.id_verified?'<span class="status pro">🪪 ID verified</span>':''}</div></div>
    <div class="detail-grid">
     <div>I am<strong>${esc(r.occupation||'-')}</strong></div>
     <div>Gender<strong>${esc(r.gender||'-')}</strong></div>
@@ -970,7 +1034,7 @@ async function sendReply(e,id){
    Tabs: Overview, Approvals, Listings, Users, Pro payments, Reports,
    Messages, Marketing
    ===================================================================== */
-const ADMIN_TABS=[['overview','📊 Overview'],['owners','🪪 Owner approvals'],['faces','🙂 Face checks'],['approvals','⏳ Listing approvals'],['listings','🏠 Listings'],['users','👥 Users'],['pro','🚀 Pro payments'],['reports','🚩 Reports'],['messages','📩 Messages'],['marketing','📣 Marketing']];
+const ADMIN_TABS=[['overview','📊 Overview'],['owners','🪪 Owner approvals'],['faces','🙂 Face checks'],['renterids','🎒 Renter IDs'],['approvals','⏳ Listing approvals'],['listings','🏠 Listings'],['users','👥 Users'],['pro','🚀 Pro payments'],['reports','🚩 Reports'],['messages','📩 Messages'],['marketing','📣 Marketing']];
 
 async function renderAdminDash(){
   document.getElementById('dashSubtitle').textContent='Approve listings, manage owners and renters, sell Pro, and control what the website shows.';
@@ -983,13 +1047,14 @@ async function renderAdminDash(){
     sb.from('reports').select('*,listings(title),profiles(full_name)').order('created_at',{ascending:false}),
     sb.from('inquiries').select('*,listings(title)').order('created_at',{ascending:false}).limit(1000),
     sb.rpc('admin_owner_applications'),
-    sb.rpc('admin_face_checks')
+    sb.rpc('admin_face_checks'),
+    sb.rpc('admin_renter_ids')
   ]);
   const bad=q.find(r=>r.error);
-  if(bad){document.getElementById('dashBody').innerHTML=`<div class="table-wrap"><p class="empty-note">Could not load the admin panel: ${esc(bad.error.message)}<br><br>Did you run <strong>tahanan-admin-update.sql</strong>, <strong>tahanan-verification.sql</strong> and <strong>tahanan-face.sql</strong> in Supabase SQL Editor?</p></div>`;return}
+  if(bad){document.getElementById('dashBody').innerHTML=`<div class="table-wrap"><p class="empty-note">Could not load the admin panel: ${esc(bad.error.message)}<br><br>Did you run <strong>tahanan-admin-update.sql</strong>, <strong>tahanan-verification.sql</strong> <strong>tahanan-face.sql</strong> and <strong>tahanan-renter-id.sql</strong> in Supabase SQL Editor?</p></div>`;return}
   adminListings=q[0].data||[];
   const stats={};(q[2].data||[]).forEach(s=>stats[s.listing_id]=s);
-  AD={users:q[1].data||[],stats,pro:q[3].data||[],reports:q[4].data||[],msgs:q[5].data||[],owners:q[6].data||[],faces:q[7].data||[]};
+  AD={users:q[1].data||[],stats,pro:q[3].data||[],reports:q[4].data||[],msgs:q[5].data||[],owners:q[6].data||[],faces:q[7].data||[],rids:q[8].data||[]};
   AD.msgs.forEach(i=>INQ[i.id]=i);
   await loadThreads();updateNav();
   await loadPromo();
@@ -998,9 +1063,9 @@ async function renderAdminDash(){
 function setAdminTab(k){adminTab=k;renderAdminTab();window.scrollTo({top:0,behavior:'smooth'})}
 function renderAdminTab(){
   if(!AD)return;
-  const count={owners:AD.owners.filter(o=>o.owner_status==='pending').length,faces:AD.faces.filter(f=>f.face_status==='pending').length,approvals:adminListings.filter(p=>p.approval==='pending').length,pro:AD.pro.filter(r=>r.status==='pending').length,reports:AD.reports.filter(r=>r.status==='open').length};
+  const count={owners:AD.owners.filter(o=>o.owner_status==='pending').length,faces:AD.faces.filter(f=>f.face_status==='pending').length,renterids:AD.rids.filter(r=>r.renter_id_status==='pending').length,approvals:adminListings.filter(p=>p.approval==='pending').length,pro:AD.pro.filter(r=>r.status==='pending').length,reports:AD.reports.filter(r=>r.status==='open').length};
   const tabs=`<div class="tabs admin-tabs">${ADMIN_TABS.map(([k,l])=>`<button type="button" class="tab ${adminTab===k?'active':''}" onclick="setAdminTab('${k}')">${l}${count[k]?` <span class="count">${count[k]}</span>`:''}</button>`).join('')}</div>`;
-  const views={overview:adminOverview,owners:adminOwners,faces:adminFaces,approvals:adminApprovals,listings:adminListingsTab,users:adminUsers,pro:adminPro,reports:adminReports,messages:adminMessages,marketing:adminMarketing};
+  const views={overview:adminOverview,owners:adminOwners,faces:adminFaces,renterids:adminRenterIds,approvals:adminApprovals,listings:adminListingsTab,users:adminUsers,pro:adminPro,reports:adminReports,messages:adminMessages,marketing:adminMarketing};
   document.getElementById('dashBody').innerHTML=tabs+(views[adminTab]||adminOverview)();
 }
 
@@ -1117,6 +1182,44 @@ async function reviewFace(id,approve){
   const {error}=await sb.rpc('admin_review_face',{p_user:id,p_approve:approve,p_reason:reason});
   if(error)return toast(error.message);
   closeModal('miniModal');toast(approve?'Face approved ✅':'Face scan declined. They will see your reason.');refreshAfterChange();
+}
+
+/* ---------- RENTER IDs ---------- */
+function adminRenterIds(){
+  const pend=AD.rids.filter(r=>r.renter_id_status==='pending'),rest=AD.rids.filter(r=>r.renter_id_status!=='pending');
+  const who=r=>`<strong>${esc(r.full_name||'(no name)')}</strong><br><span style="color:var(--muted)">${esc(r.email||'')}<br>${esc(r.phone||'')}</span>`;
+  const badge=r=>({approved:'<span class="status">✓ Approved</span>',declined:'<span class="status declined">✕ Declined</span>'}[r.renter_id_status]||'');
+  const view=r=>`<button class="btn btn-outline btn-sm" onclick="openRenterIdCheck('${r.id}')">🪪 View ID & face</button>`;
+  return sectionHTML('Renter IDs waiting for review 🎒','Check that the ID is a real government ID, readable, and that the name and photo match their profile and live face scan. Approving the ID also approves their face scan if it is still pending.',
+      tableHTML(['Submitted','Renter','Face scan','Actions'],pend.map(r=>[fmtDate(r.renter_id_submitted_at),who(r),faceTag(r.id),
+        `<div class="actions">${view(r)}<button class="btn btn-teal" onclick="reviewRenterId('${r.id}',true)">✓ Approve</button><button class="btn btn-danger" onclick="reviewRenterId('${r.id}',false)">✕ Decline</button></div>`]),'All caught up! No renter IDs waiting. 🎉'))+
+    (rest.length?sectionHTML(`Reviewed renter IDs (${rest.length})`,'',searchBox('admRids','Search renters...')+`<div id="admRids">${tableHTML(['Submitted','Renter','Status','Actions'],rest.map(r=>[r.renter_id_submitted_at?fmtDate(r.renter_id_submitted_at):'-',who(r),badge(r)+(r.renter_id_status==='declined'&&r.renter_id_decline_reason?`<div class="hint" style="max-width:220px">${esc(r.renter_id_decline_reason)}</div>`:''),view(r)]),'')}</div>`):'');
+}
+async function openRenterIdCheck(id){
+  const r=AD.rids.find(x=>x.id===id);if(!r)return;
+  openMini(`<h2 class="mini-h">🎒 ${esc(r.full_name||'Renter')}</h2><p class="sub">${esc(r.email||'')} · ${esc(r.phone||'')}<br>Private links expire in 10 minutes.</p><div id="ridBox"><p class="loading">Loading...</p></div>`);
+  const pdf=/\.pdf$/i.test(r.renter_id_doc||'');
+  const fc=AD.faces.find(x=>x.id===id);
+  const [idUrl,faceUrl]=await Promise.all([signedUrl(DOCS_BUCKET,r.renter_id_doc),signedUrl(FACE_BUCKET,fc?.face_selfie)]);
+  const box=document.getElementById('ridBox');if(!box)return;
+  const tile=(label,src)=>`<figure><img src="${esc(src)}" alt="${label}"><figcaption>${label}</figcaption></figure>`;
+  box.innerHTML=`<h3 class="detail-h" style="margin-top:0">Government ID${idUrl?` · <a class="textlink" href="${esc(idUrl)}" target="_blank" rel="noopener">Open full size ↗</a>`:''}</h3>
+   ${idUrl?(pdf?'<p class="sub">PDF file. Use the link above to open it.</p>':`<div class="doc-view"><img src="${esc(idUrl)}" alt="Government ID"></div>`):'<p class="sub">Could not load the ID.</p>'}
+   <h3 class="detail-h">Compare with ${faceTag(id)}</h3><div class="face-compare">${faceUrl?tile('Live face scan',faceUrl):''}${tile('Profile photo',r.avatar_url||AVATAR_FALLBACK)}</div>
+   ${r.renter_id_status==='declined'&&r.renter_id_decline_reason?`<p class="hint">Last decline reason: ${esc(r.renter_id_decline_reason)}</p>`:''}
+   <div class="actions" style="margin-top:16px">${r.renter_id_status!=='approved'?`<button class="btn btn-teal" onclick="reviewRenterId('${r.id}',true)">✓ Approve ID</button>`:''}${r.renter_id_status!=='declined'?`<button class="btn btn-danger" onclick="reviewRenterId('${r.id}',false)">✕ Decline</button>`:''}</div>`;
+}
+async function reviewRenterId(id,approve){
+  let reason=null;
+  if(!approve){
+    reason=prompt('Why are you declining? The renter will see this and can upload again.','Your ID photo is blurry. Please upload a clear photo of the front of your ID.');
+    if(reason===null)return;
+    reason=reason.trim().slice(0,300)||'We could not verify your ID.';
+  }
+  const {error}=await sb.rpc('admin_review_renter_id',{p_user:id,p_approve:approve,p_reason:reason});
+  if(error)return toast(error.message);
+  if(approve&&AD.faces.find(f=>f.id===id&&f.face_status==='pending')){const r=await sb.rpc('admin_review_face',{p_user:id,p_approve:true,p_reason:null});if(r.error)toast('ID approved, but the face check failed: '+r.error.message)}
+  closeModal('miniModal');toast(approve?'Renter ID approved ✅':'ID declined. The renter will see your reason.');refreshAfterChange();
 }
 
 /* ---------- APPROVALS ---------- */
