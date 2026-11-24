@@ -166,6 +166,8 @@ label.check{display:flex!important;gap:8px;align-items:center;font-size:13px;mar
 const SUPABASE_URL='https://fxdfthhtpvfxvovqxphu.supabase.co';
 const SUPABASE_KEY='sb_publishable_mhSnTieU9aF4ZENCfl23lQ_zhT8MUFs';
 const BUCKET='listing-photos';
+// read the address bar BEFORE Supabase cleans it, so we know if the user just clicked a confirmation or reset link
+const LANDING=location.hash+location.search;
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 /* =====================================================================
@@ -437,6 +439,24 @@ async function setUser(u){
     profile=data||{id:u.id,full_name:u.user_metadata?.full_name||'',phone:u.user_metadata?.phone||'',role:'renter'};
   }
   await loadSaved();await loadThreads();updateNav();renderListings();loadPromo();
+  if(u)maybeOnboard();
+}
+/* After email confirmation the user lands on the site already logged in.
+   If they haven't finished verifying, take them to their dashboard and open the face scan.
+   Runs once per browser session so it doesn't nag on every page refresh. */
+async function maybeOnboard(){
+  if(!user||!profile||profile.role==='admin'||/type=recovery/.test(LANDING))return;
+  if(/type=(signup|email)/.test(LANDING)&&!window._confirmToast){window._confirmToast=true;toast('Email confirmed! ✅ Welcome to Tahanan.')}
+  const ownerTodo=isOwnerRole()&&!ownerApproved();
+  const renterTodo=profile.role==='renter'&&!renterReady();
+  if(!ownerTodo&&!renterTodo)return;
+  const key='tahanan_onboard_'+user.id;let asked=false;
+  try{asked=sessionStorage.getItem(key)==='1';sessionStorage.setItem(key,'1')}catch(e){}
+  if(asked)return;
+  window._faceAsked=true;// stops the renter dashboard from opening the scan a second time
+  await goDashboard();
+  if(['none','declined'].includes(profile.face_status||'none'))openFaceScan();
+  else if(profile.role==='renter')nextRenterStep();
 }
 function updateNav(){
   const nav=document.getElementById('navActions');
@@ -473,7 +493,7 @@ async function doLogin(e){
   const {data,error}=await sb.auth.signInWithPassword({email:val('loginEmail'),password:document.getElementById('loginPassword').value});
   busy(btn,false);
   if(error){
-    if(/confirm/i.test(error.message))return notice('Please confirm your email first. Check your inbox (and spam folder) for the link from Supabase.');
+    if(/confirm/i.test(error.message))return notice('Please confirm your email first. Check your inbox (and spam folder) for the link from Tahanan.');
     if(/invalid/i.test(error.message))return notice('Wrong email or password. Please try again.');
     return notice(error.message);
   }
