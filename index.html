@@ -422,8 +422,7 @@ async function toggleSave(id){
    5. ACCOUNTS: sign up, log in, log out, reset password
    ===================================================================== */
 async function initAuth(){
-  const {data:{session}}=await sb.auth.getSession();
-  await setUser(session?.user||null);
+  // start listening FIRST so we don't miss the password reset signal
   sb.auth.onAuthStateChange((event,session)=>{
     // setTimeout avoids a known Supabase freeze when calling the database inside this listener
     setTimeout(async()=>{
@@ -431,6 +430,10 @@ async function initAuth(){
       if(event==='PASSWORD_RECOVERY')showPage('reset');
     },0);
   });
+  const {data:{session}}=await sb.auth.getSession();
+  await setUser(session?.user||null);
+  // backup: if they came from a reset link, show the new password form
+  if(/type=recovery/.test(LANDING))showPage('reset');
 }
 async function setUser(u){
   user=u;profile=null;INQ={};
@@ -529,7 +532,10 @@ async function doReset(e){
   const {error}=await sb.auth.updateUser({password:document.getElementById('newPassword').value});
   busy(btn,false);
   if(error)return toast(error.message);
-  e.target.reset();toast('Password updated! 🔑');goDashboard();
+  e.target.reset();
+  history.replaceState(null,'',location.pathname);// clears the reset link from the address bar
+  await sb.auth.signOut();await setUser(null);
+  openAuth('login');notice('Password updated! 🔑 Please log in with your new password.','ok');
 }
 async function logout(){await sb.auth.signOut();await setUser(null);showPage('home');toast('You are logged out. Ingat! 👋')}
 
